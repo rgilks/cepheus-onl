@@ -1,0 +1,12 @@
+name = "cepheus-onl"
+compatibility_date = "2024-05-02"
+
+[vars]
+DB_BINDING = "DB"
+
+[[d1_databases]]
+binding = "DB"                                 # i.e. available in your Worker on env.DB
+database_name = "cepheus-onl-db"
+database_id = ""                               # You will get this when you create the DB
+preview_database_id = "cepheus-onl-db-preview"
+migrations_dir = "migrations"

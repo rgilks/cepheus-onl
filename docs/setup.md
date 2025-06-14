@@ -6,10 +6,10 @@ This guide will walk you through setting up the project from scratch. Don't worr
 
 Before we start, make sure you have the following installed on your computer:
 
-* **Node.js:** This is a JavaScript runtime that lets you run the project. We recommend using the latest Long-Term Support (LTS) version. You can download it from [nodejs.org](https://nodejs.org/).
-* **Git:** This is the version control system we use to manage our code. You can download it from [git-scm.com](https://git-scm.com/).
-* **An AWS Account:** Our project uses AWS Amplify for the backend and hosting. If you don't have an account yet, you can create one for free at [aws.amazon.com](https://aws.amazon.com/).
-* **A GitHub Account:** You'll need this to get the code and contribute. You can sign up at [github.com](https://github.com/).
+- **Node.js:** This is a JavaScript runtime that lets you run the project. We recommend using the latest Long-Term Support (LTS) version. You can download it from [nodejs.org](https://nodejs.org/).
+- **Git:** This is the version control system we use to manage our code. You can download it from [git-scm.com](https://git-scm.com/).
+- **An AWS Account:** Our project uses AWS Amplify for the backend and hosting. If you don't have an account yet, you can create one for free at [aws.amazon.com](https://aws.amazon.com/).
+- **A GitHub Account:** You'll need this to get the code and contribute. You can sign up at [github.com](https://github.com/).
 
 ## Step 1: Get the Project Code
 
@@ -63,6 +63,7 @@ Our project uses AWS Amplify for its backend (things like user accounts, databas
     # This command might ask you to log in to your AWS account
     npx create-amplify@latest
     ```
+
     Follow the on-screen prompts. This will create a new `amplify` folder in your project.
 
 2.  **Start the Sandbox:** This command creates and deploys a development version of the backend just for you.
@@ -81,10 +82,10 @@ This step sets up automatic deployments. Whenever you push changes to your GitHu
 1.  **Log in to AWS:** Open your web browser and log in to the [AWS Management Console](https://aws.amazon.com/).
 2.  **Go to AWS Amplify:** Use the search bar at the top to find and navigate to the "AWS Amplify" service.
 3.  **Host a Web App:**
-    * Click on **"New app"** and then **"Host web app"**.
-    * Choose **GitHub** as your provider and follow the steps to authorize Amplify to access your repositories.
-    * Select your forked repository (e.g., `<your-github-username>/<project-name>`) and choose the `main` branch.
-    * Click **"Next"**.
+    - Click on **"New app"** and then **"Host web app"**.
+    - Choose **GitHub** as your provider and follow the steps to authorize Amplify to access your repositories.
+    - Select your forked repository (e.g., `<your-github-username>/<project-name>`) and choose the `main` branch.
+    - Click **"Next"**.
 4.  **Confirm Build Settings:** Amplify is smart and should detect all the correct settings automatically. You can just look them over and click **"Next"**.
 5.  **Save and Deploy:** Review your settings one last time and click **"Save and deploy"**.
 

@@ -1,22 +1,57 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Cepheus Engine Online
+
+This project is an online platform for playing the Cepheus Engine tabletop RPG, powered by a custom AI game master.
+
+## Tech Stack
+
+- **Framework:** [Next.js](https://nextjs.org/)
+- **Hosting & Backend:** [Cloudflare Pages](https://pages.cloudflare.com/) & [Cloudflare Workers](https://workers.cloudflare.com/)
+- **Database:** [Cloudflare D1](https://developers.cloudflare.com/d1/) with [Drizzle ORM](https://orm.drizzle.team/)
+- **Authentication:** Discord OAuth
+- **AI:** [Cloudflare Workers AI](https://developers.cloudflare.com/workers-ai/)
+- **UI:** [React](https://react.dev/) with [Tailwind CSS](https://tailwindcss.com/)
+- **Real-time:** [Cloudflare Durable Objects](https://developers.cloudflare.com/durable-objects/)
 
 ## Getting Started
 
-First, run the development server:
+1.  **Clone the repository:**
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+    ```bash
+    git clone <repository-url>
+    cd cepheus-onl
+    ```
+
+2.  **Install dependencies:**
+
+    ```bash
+    npm install
+    ```
+
+3.  **Set up Cloudflare D1:**
+
+    - Create your production and preview databases:
+      ```bash
+      npx wrangler d1 create cepheus-onl-db
+      npx wrangler d1 create cepheus-onl-db-preview
+      ```
+    - Update `wrangler.toml` with the `database_id` provided by the previous commands.
+
+4.  **Run local migrations:**
+
+    ```bash
+    npm run migrate:local
+    ```
+
+5.  **Run the development server:**
+    ```bash
+    npm run dev
+    ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Deployment
+
+This project is configured for deployment on [Cloudflare Pages](https://pages.cloudflare.com/). Simply connect your Git repository to a new Cloudflare Pages project and configure the necessary environment variables for Discord OAuth.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 

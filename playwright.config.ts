@@ -1,9 +1,9 @@
-import { defineConfig, devices } from "@playwright/test";
-import dotenv from "dotenv";
+import { defineConfig, devices } from '@playwright/test';
+import dotenv from 'dotenv';
 
 dotenv.config();
 
-const port = process.env.PORT || "3001";
+const port = process.env.PORT || '3001';
 const baseURL = `http://localhost:${port}`;
 
 const isCI = !!(
@@ -16,40 +16,40 @@ const isCI = !!(
 );
 
 export default defineConfig({
-  testDir: "./e2e",
+  testDir: './e2e',
   fullyParallel: true,
   forbidOnly: isCI,
   retries: isCI ? 2 : 0,
   workers: isCI ? 1 : undefined,
-  reporter: [["html", { open: "never" }]],
+  reporter: [['html', { open: 'never' }]],
   timeout: 40000,
-  outputDir: "test-results/",
+  outputDir: 'test-results/',
   use: {
     baseURL,
-    trace: "on-first-retry",
-    screenshot: "only-on-failure",
-    video: "retain-on-failure",
+    trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
   },
 
   projects: isCI
     ? [
         {
-          name: "chromium",
-          use: { ...devices["Desktop Chrome"] },
+          name: 'chromium',
+          use: { ...devices['Desktop Chrome'] },
         },
       ]
     : [
         {
-          name: "chromium",
-          use: { ...devices["Desktop Chrome"] },
+          name: 'chromium',
+          use: { ...devices['Desktop Chrome'] },
         },
         {
-          name: "firefox",
-          use: { ...devices["Desktop Firefox"] },
+          name: 'firefox',
+          use: { ...devices['Desktop Firefox'] },
         },
         {
-          name: "webkit",
-          use: { ...devices["Desktop Safari"] },
+          name: 'webkit',
+          use: { ...devices['Desktop Safari'] },
         },
       ],
 
