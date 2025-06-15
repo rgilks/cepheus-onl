@@ -36,5 +36,5 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy .open-next/assets --project-name=cepheus-onl
+          command: pages deploy .open-next --project-name=cepheus-onl
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
