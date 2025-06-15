@@ -10,9 +10,11 @@ import {
   type APIInteraction,
   MessageFlags,
   type APIMessageComponentInteraction,
+  type APIChatInputApplicationCommandInteraction,
 } from 'discord-api-types/v10';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
+import { action as worldAction } from 'app/lib/discord/commands/traveller/world';
 
 type CloudflareContext = {
   waitUntil: (promise: Promise<unknown>) => void;
@@ -49,7 +51,21 @@ const equipmentHandler: CommandHandler = (interaction, { ctx }) => {
   });
 };
 
+const worldHandler: CommandHandler = (interaction, { ctx }) => {
+  if (interaction.type === InteractionType.ApplicationCommand) {
+    ctx.waitUntil(worldAction(interaction as APIChatInputApplicationCommandInteraction));
+    return NextResponse.json({
+      type: InteractionResponseType.DeferredChannelMessageWithSource,
+      data: {
+        flags: MessageFlags.Ephemeral,
+      },
+    });
+  }
+  return NextResponse.json({ error: 'Invalid interaction type' }, { status: 400 });
+};
+
 export const commandHandlers: Record<string, CommandHandler> = {
   chargen: chargenHandler,
   equipment: equipmentHandler,
+  world: worldHandler,
 };

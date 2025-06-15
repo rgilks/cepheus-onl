@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import { Routes } from 'discord-api-types/v10';
 import { command as equipmentCommand } from 'app/lib/discord/commands/equipment/command';
+import { command as worldCommand } from 'app/lib/discord/commands/traveller/command';
 
 const token = process.env.DISCORD_BOT_TOKEN;
 const clientId = process.env.DISCORD_CLIENT_ID;
@@ -15,6 +16,7 @@ const commands = [
     description: 'Generates a random Cepheus Engine character.',
   },
   equipmentCommand,
+  worldCommand,
 ];
 
 (async () => {
