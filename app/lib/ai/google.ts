@@ -49,7 +49,7 @@ const extractTextFromResponse = (response: GenAIResponse): string => {
 };
 
 export const getActiveVisionModel = async (): Promise<{ name: string }> => {
-  const modelName = process.env['GOOGLE_AI_VISION_MODEL'] ?? 'gemini-1.5-pro-latest';
+  const modelName = process.env['GOOGLE_AI_VISION_MODEL'] ?? 'gemini-2.5-flash-preview-05-20';
   if (!process.env['GOOGLE_AI_VISION_MODEL']) {
     console.warn(
       `[AI] GOOGLE_AI_VISION_MODEL environment variable not set. Using default: ${modelName}`
@@ -74,7 +74,7 @@ export const generateTextCompletion = async (prompt: string): Promise<string> =>
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       config: {
         maxOutputTokens: 4096,
-        temperature: 0.8,
+        temperature: 1.2,
         topP: 0.95,
         topK: 40,
       },
