@@ -5,7 +5,7 @@ import { useSound } from '@/lib/hooks';
 
 export default function Auth() {
   const { data: session } = useSession();
-  const playClickSound = useSound('/mp3/beep_button.mp3');
+  const playClickSound = useSound('/mp3/beep_electric_2.mp3', 0.5);
 
   const handleSignOut = () => {
     playClickSound();

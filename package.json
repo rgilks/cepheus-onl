@@ -22,7 +22,8 @@
     "deps": "npx npm-check-updates",
     "deps:update": "npx npm-check-updates -u && npm run nuke",
     "migrate:generate": "drizzle-kit generate",
-    "migrate:local": "wrangler d1 migrations apply cepheus-onl-db --local",
+    "migrate:d1": "wrangler d1 migrations apply cepheus-onl-db",
+    "migrate:local": "drizzle-kit push --config=drizzle.config.local.ts",
     "discord:register-commands": "tsx scripts/register-commands.ts"
   },
   "dependencies": {
