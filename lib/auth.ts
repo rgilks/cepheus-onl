@@ -5,23 +5,24 @@ import { getDb } from '@/lib/db';
 import * as schema from '@/lib/db/schema';
 import { Adapter } from 'next-auth/adapters';
 
-const db = getDb();
-
 export const {
   handlers: { GET, POST },
   auth,
-} = NextAuth({
-  adapter: DrizzleAdapter(db, {
-    usersTable: schema.users,
-    accountsTable: schema.accounts,
-    sessionsTable: schema.sessions,
-    verificationTokensTable: schema.verificationTokens,
-  }) as Adapter,
-  providers: [
-    Discord({
-      clientId: process.env.DISCORD_CLIENT_ID,
-      clientSecret: process.env.DISCORD_CLIENT_SECRET,
-    }),
-  ],
-  trustHost: true,
+} = NextAuth(() => {
+  const db = getDb();
+  return {
+    adapter: DrizzleAdapter(db, {
+      usersTable: schema.users,
+      accountsTable: schema.accounts,
+      sessionsTable: schema.sessions,
+      verificationTokensTable: schema.verificationTokens,
+    }) as Adapter,
+    providers: [
+      Discord({
+        clientId: process.env.DISCORD_CLIENT_ID,
+        clientSecret: process.env.DISCORD_CLIENT_SECRET,
+      }),
+    ],
+    trustHost: true,
+  };
 });
