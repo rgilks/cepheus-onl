@@ -8,9 +8,9 @@ import {
   ApplicationCommandOptionType,
 } from 'discord-api-types/v10';
 import { NextResponse } from 'next/server';
-// eslint-disable-next-line import/no-unresolved
+
 import { discord } from 'app/lib/discord/discord';
-// eslint-disable-next-line import/no-unresolved
+
 import { EquipmentItemSchema } from 'app/lib/domain/types';
 
 const EQUIPMENT_CATEGORIES = {

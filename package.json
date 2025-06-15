@@ -32,7 +32,6 @@
     "@auth/drizzle-adapter": "^1.9.1",
     "@dimforge/rapier3d": "^0.17.3",
     "@dimforge/rapier3d-compat": "^0.17.3",
-    "@discordjs/rest": "^2.5.0",
     "@google-cloud/text-to-speech": "^6.1.0",
     "@google/genai": "^1.5.1",
     "@react-three/drei": "^10.2.0",
