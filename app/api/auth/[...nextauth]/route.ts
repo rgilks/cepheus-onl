@@ -5,7 +5,7 @@ import { getDb } from '@/lib/db';
 import * as schema from '@/lib/db/schema';
 import { nanoid } from 'nanoid';
 import { Adapter, AdapterUser } from 'next-auth/adapters';
-import { NextRequest } from 'next/server';
+import { type NextRequest } from 'next/server';
 
 function CustomDrizzleAdapter(db: ReturnType<typeof getDb>): Adapter {
   const adapter = DrizzleAdapter(db, {
@@ -38,8 +38,12 @@ function getAuthOptions(): NextAuthOptions {
   };
 }
 
-export const GET = (req: NextRequest, ctx: { params: { nextauth: string[] } }) =>
-  NextAuth(req, ctx, getAuthOptions());
+function handler(
+  req: NextRequest,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  res: any
+) {
+  return NextAuth(req, res, getAuthOptions());
+}
 
-export const POST = (req: NextRequest, ctx: { params: { nextauth: string[] } }) =>
-  NextAuth(req, ctx, getAuthOptions());
+export { handler as GET, handler as POST };
