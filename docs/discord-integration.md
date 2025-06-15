@@ -32,11 +32,7 @@ The application can send messages to a Discord channel and is set up to receive 
 
 ### Sending Messages
 
-We use the `@discordjs/rest` library to send messages. This is a lightweight, REST-only client that is suitable for serverless environments.
-
-The `sendMessage` function in `lib/discord.ts` handles sending messages to a specified channel.
-
-An API route at `app/api/discord/message/route.ts` exposes this functionality.
+The `sendDiscordMessage` server action in `app/lib/discord/actions.ts` handles sending messages to a specified channel. This action calls the Discord API directly to deliver the message.
 
 ### Handling Discord Interactions (Slash Commands)
 
