@@ -1,6 +1,6 @@
 name = "cepheus-onl"
 compatibility_date = "2024-05-02"
-pages_build_output_dir = ".vercel/output/static"
+pages_build_output_dir = ".open-next/assets"
 
 [vars]
 DB_BINDING = "DB"
