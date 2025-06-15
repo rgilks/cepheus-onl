@@ -94,15 +94,15 @@ export const ItemSchema = z.object({
   traits: z.record(z.unknown()).optional(),
   magazine: z.number().int().optional(),
   magazineCost: z.number().optional(),
-  Name: z.string(),
-  Description: z.string().optional(),
 });
 export type Item = z.infer<typeof ItemSchema>;
 
-export const EquipmentItemSchema = ItemSchema.extend({
-  Name: z.string(),
-  Description: z.string().optional(),
-});
+export const EquipmentItemSchema = z
+  .object({
+    Name: z.string(),
+    Description: z.string().optional(),
+  })
+  .passthrough();
 export type EquipmentItem = z.infer<typeof EquipmentItemSchema>;
 
 export const AnimalDataSchema = z.object({
