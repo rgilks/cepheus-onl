@@ -33,5 +33,6 @@ export const {
         clientSecret: process.env.DISCORD_CLIENT_SECRET,
       }),
     ],
+    trustHost: true,
   };
 });
