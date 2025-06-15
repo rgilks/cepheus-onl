@@ -12,5 +12,6 @@ export async function sendMessage(channelId: string, message: string) {
     });
   } catch (error) {
     console.error('Error sending message to Discord:', error);
+    throw error;
   }
 }
