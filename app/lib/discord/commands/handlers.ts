@@ -14,22 +14,16 @@ import {
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type CommandContext = { request: NextRequest; ctx: any };
+type CloudflareContext = {
+  waitUntil: (promise: Promise<unknown>) => void;
+};
+
+type CommandContext = { request: NextRequest; ctx: CloudflareContext };
 
 type CommandHandler = (
   interaction: APIInteraction,
   context: CommandContext
 ) => Promise<NextResponse> | NextResponse;
-
-const helloHandler: CommandHandler = () => {
-  return NextResponse.json({
-    type: InteractionResponseType.ChannelMessageWithSource,
-    data: {
-      content: 'Hello there!',
-    },
-  });
-};
 
 const chargenHandler: CommandHandler = (interaction, { ctx }) => {
   ctx.waitUntil(chargenAction(interaction as APIApplicationCommandInteraction));
@@ -56,7 +50,6 @@ const equipmentHandler: CommandHandler = (interaction, { ctx }) => {
 };
 
 export const commandHandlers: Record<string, CommandHandler> = {
-  hello: helloHandler,
   chargen: chargenHandler,
   equipment: equipmentHandler,
 };

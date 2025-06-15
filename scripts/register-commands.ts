@@ -11,10 +11,6 @@ if (!token || !clientId) {
 
 const commands = [
   {
-    name: 'hello',
-    description: 'A simple test command that replies!',
-  },
-  {
     name: 'chargen',
     description: 'Generates a random Cepheus Engine character.',
   },
