@@ -36,6 +36,7 @@ const withDiscordVerification = (
 
 const handleInteraction = (request: NextRequest, interaction: APIInteraction) => {
   const { ctx } = getCloudflareContext();
+  console.log('Received interaction:', JSON.stringify(interaction, null, 2));
 
   if (interaction.type === InteractionType.Ping) {
     return NextResponse.json({ type: InteractionResponseType.Pong });
@@ -44,15 +45,18 @@ const handleInteraction = (request: NextRequest, interaction: APIInteraction) =>
   let handler;
   if (interaction.type === InteractionType.ApplicationCommand) {
     handler = commandHandlers[interaction.data.name];
+    console.log(`Routing to ApplicationCommand handler for: ${interaction.data.name}`);
   } else if (interaction.type === InteractionType.MessageComponent) {
     const commandName = interaction.data.custom_id.split('_')[0];
     handler = commandHandlers[commandName];
+    console.log(`Routing to MessageComponent handler for: ${commandName}`);
   }
 
   if (handler) {
     return handler(interaction, { request, ctx });
   }
 
+  console.error('No handler found for interaction');
   return NextResponse.json({ error: 'Unhandled interaction' }, { status: 400 });
 };
 
