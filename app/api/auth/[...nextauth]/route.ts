@@ -3,7 +3,6 @@ import DiscordProvider from 'next-auth/providers/discord';
 import { DrizzleAdapter } from '@auth/drizzle-adapter';
 import { getDb } from '@/lib/db';
 import * as schema from '@/lib/db/schema';
-import { type NextRequest } from 'next/server';
 import { nanoid } from 'nanoid';
 import { Adapter, AdapterUser } from 'next-auth/adapters';
 
@@ -38,8 +37,6 @@ function getAuthOptions(): NextAuthOptions {
   };
 }
 
-async function handler(req: NextRequest, ctx: { params: { nextauth: string[] } }) {
-  return NextAuth(req, ctx, getAuthOptions());
-}
+const handler = NextAuth(getAuthOptions());
 
 export { handler as GET, handler as POST };
