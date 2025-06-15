@@ -1,8 +1,10 @@
+import { getCloudflareContext } from '@opennextjs/cloudflare';
 import { InteractionResponseType, InteractionType, verifyKey } from 'discord-interactions';
 import { NextResponse, type NextRequest } from 'next/server';
 import { action as chargenAction } from 'app/lib/discord/commands/chargen/action';
 
 export async function POST(request: NextRequest) {
+  const { ctx } = getCloudflareContext();
   const signature = request.headers.get('x-signature-ed25519');
   const timestamp = request.headers.get('x-signature-timestamp');
   const rawBody = await request.text();
@@ -42,7 +44,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (name === 'chargen') {
-      chargenAction(interaction);
+      ctx.waitUntil(chargenAction(interaction));
       return NextResponse.json({
         type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
       });
