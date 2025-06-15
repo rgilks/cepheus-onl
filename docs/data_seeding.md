@@ -1,35 +1,25 @@
 # Data Seeding
 
-This document describes the process for seeding initial data, such as game rulesets, into the Cloudflare D1 database.
+This document explains how to seed the database with initial data.
 
-## Ruleset Seeding
+## Overview
 
-The core rules for the game are defined in JSON files located in the `/data` directory. For the initial setup, we will focus on seeding the `cepheus-engine-srd.json` file. In the future, this process can be extended to allow for custom rulesets.
+For a complex application like Cepheus Engine Online, it's essential to have a consistent set of starting data for development, testing, and even production. This might include:
 
-The data will be inserted into the `rulesets` table in the D1 database.
+- Standard items, weapons, and armor from the Cepheus Engine SRD.
+- Premade character templates.
+- Initial world state for the AI Game Master.
 
-### Seeding Script
+## Seeding Process
 
-A script will be created at `scripts/seed.ts` to handle the seeding process. This script will:
+Currently, there is no automated seeding process implemented. Data is managed directly in the database.
 
-1.  Read the `cepheus-engine-srd.json` file from the `/data` directory.
-2.  Connect to the Cloudflare D1 database using Wrangler's local development context.
-3.  Insert the JSON content into a new record in the `rulesets` table. The `data` column will contain the entire JSON object as a string.
+As the project evolves, we will implement a seeding mechanism. The plan is to:
 
-### How to Run the Seeding Script
+1.  **Store Seed Data:** Define seed data in files within the `data/` directory. We will use the Cepheus SRD data available in this repository.
+2.  **Create a Seed Script:** Develop a script in `scripts/seed.ts` that reads the data files and populates the database using Drizzle ORM.
+3.  **Run the Script:** The script will be executable via an `npm run` command, like `npm run db:seed`.
 
-A new npm script will be added to `package.json`:
+## SRD Data
 
-```json
-"scripts": {
-  "db:seed": "tsx scripts/seed.ts"
-}
-```
-
-To seed the database, you will run the following command:
-
-```bash
-npm run db:seed
-```
-
-This script will need to be run after you have set up your local database and run the initial migrations. This ensures that the application has access to the core game rules when it starts.
+The `data/cepheus-srd` directory contains the Cepheus Engine SRD data in HTML format, which will be used for seeding the database. This data will need to be parsed before it can be inserted into the database.
