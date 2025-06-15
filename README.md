@@ -1,62 +1,47 @@
 # Cepheus Engine Online
 
-This project is an online platform for playing the Cepheus Engine tabletop RPG, powered by a custom AI game master. It aims to provide a full-featured Virtual Tabletop (VTT) and character manager for the Cepheus Engine SRD.
+Welcome to Cepheus Engine Online, a modern, serverless platform for playing the Cepheus Engine tabletop RPG. This project provides a comprehensive VTT experience with deep integration into Discord.
 
-## Tech Stack
+## Overview
 
-- **Framework:** [Next.js](httpss://nextjs.org/) using the [OpenNext](httpss://opennext.js.org/) adapter
-- **Hosting & Backend:** [Cloudflare Workers](httpss://workers.cloudflare.com/)
-- **Database:** [Cloudflare D1](httpss://developers.cloudflare.com/d1/) with [Drizzle ORM](httpss://orm.drizzle.team/)
-- **Caching:** [Cloudflare R2](httpss://developers.cloudflare.com/r2/) for ISR and data cache
-- **Authentication:** Discord OAuth
-- **AI:** [Cloudflare Workers AI](httpss://developers.cloudflare.com/workers-ai/)
-- **UI:** [React](httpss://react.dev/) with [Tailwind CSS](httpss://tailwindcss.com/)
-- **Real-time:** [Cloudflare Durable Objects](httpss://developers.cloudflare.com/durable-objects/) (planned)
-- **3D Rendering:** [React Three Fiber](httpss://docs.pmnd.rs/react-three-fiber/getting-started/introduction) (for VTT)
+This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app) and configured to run on the [Cloudflare serverless platform](https://www.cloudflare.com/developer-platform/) using [OpenNext](https://open-next.js.org/).
 
-## Architecture
+The goal is to create a fully-featured, scalable, and cost-effective application for real-time, collaborative TTRPG gameplay.
 
-The application is designed with a modern, serverless-first approach. For a detailed overview of the system's architecture, components, and data flow, please see the [Architecture documentation](./docs/architecture.md).
+## Core Technologies
 
-### Scalability and Cost Analysis
+- **Framework**: Next.js with OpenNext
+- **Deployment**: Cloudflare Workers
+- **Database**: Cloudflare D1 with Drizzle ORM
+- **Authentication**: Discord OAuth via NextAuth.js
+- **Real-time Engine**: (Planned) Cloudflare Durable Objects
+- **AI Game Master**: (Planned) Cloudflare Workers AI
 
-For a detailed analysis of the application's scalability, concurrency handling, and cost structure, please see the [Scalability and Cost Analysis document](./docs/scalability_and_cost_analysis.md).
+## Key Features
 
-## Discord Integration
-
-This project uses NextAuth.js for Discord authentication and the Discord API for bot interactions. For a detailed guide on the setup, environment variables, and messaging implementation, please see the [Discord Integration document](./docs/discord-integration.md).
+- **Discord Bot**: Interact with the game directly from Discord using slash commands.
+  - Asynchronous command handling for a responsive experience.
+  - `/chargen`: Generate a complete Cepheus Engine character.
+  - `/equipment`: Browse the SRD equipment catalog.
+- **Web UI**: A full-featured web interface for game management (in development).
+- **Authentication**: Secure login with your Discord account.
+- **Data Model**: A comprehensive database schema to manage games, characters, worlds, and more.
 
 ## Getting Started
 
-For a comprehensive guide on setting up the project for local development and production, please refer to the [Setup documentation](./docs/setup.md).
+To get started with local development, please see the detailed [Setup Guide](./docs/setup.md).
 
-A brief overview of the steps is as follows:
+## Documentation
 
-1.  **Clone and install:**
-    ```bash
-    git clone https://github.com/rgilks/cepheus-onl.git
-    cd cepheus-onl
-    npm install
-    ```
-2.  **Configure your environment:** Create a `.env` file and set up your Cloudflare D1/R2 resources as described in the setup guide.
-3.  **Run local migrations:**
-    ```bash
-    npm run migrate:local
-    ```
-4.  **Run the development server:**
-    ```bash
-    npm run dev
-    ```
+For more detailed information about the project, please refer to the documents in the `/docs` directory:
 
-## Deployment
+- **[Architecture](./docs/architecture.md)**: A high-level overview of the system architecture.
+- **[Database Schema](./docs/database_schema.md)**: Detailed information about the database tables.
+- **[Discord Integration](./docs/discord-integration.md)**: How the Discord bot and authentication are implemented.
+- **[Setup Guide](./docs/setup.md)**: Instructions for setting up a local development environment.
+- **[Scalability and Cost Analysis](./docs/scalability_and_cost_analysis.md)**: An analysis of the platform's scalability and cost.
+- **[Testing](./docs/testing.md)**: Information about the project's testing strategy.
 
-This project is automatically deployed to Cloudflare Workers via a GitHub Actions workflow. On every push to the `main` branch, the application is built, adapted, and deployed.
+## Contributing
 
-All configuration for the deployment, including D1 and R2 bindings, is managed in the `wrangler.jsonc` file.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Contributions are welcome! Please feel free to submit a pull request or open an issue.

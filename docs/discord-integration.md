@@ -8,12 +8,7 @@ We use `next-auth` with the `DrizzleAdapter` to handle authentication with Disco
 
 ### Environment Variables
 
-The following environment variables are required for Discord authentication. These should be placed in your `.env.local` file.
-
-- `NEXTAUTH_URL`: The base URL of the application. For local development, this is `http://localhost:3000`.
-- `NEXTAUTH_SECRET`: A secret key for `next-auth`. You can generate one with `openssl rand -hex 32`.
-- `DISCORD_CLIENT_ID`: Your Discord application's client ID.
-- `DISCORD_CLIENT_SECRET`: Your Discord application's client secret.
+All required environment variables for Discord integration are documented in the [Setup Guide](./setup.md#step-4-configure-environment-variables).
 
 ### Database Schema
 
@@ -38,15 +33,23 @@ The `sendDiscordMessage` server action in `app/lib/discord/actions.ts` handles s
 
 To receive interactions from Discord, such as slash commands, we use an Interactions Endpoint.
 
-An API route at `app/api/discord/webhook/route.ts` is set up to receive incoming interaction payloads from Discord. This endpoint is secured by verifying the cryptographic signature of each request.
+An API route at `app/api/discord/webhook/route.ts` is set up to receive incoming interaction payloads from Discord. This endpoint is secured by verifying the cryptographic signature of each request using the `DISCORD_APP_PUBLIC_KEY`.
 
-- `DISCORD_BOT_TOKEN`: The token for your Discord bot.
-- `DISCORD_PUBLIC_KEY`: The public key for your Discord application, used to verify incoming interactions.
-- `DISCORD_CHANNEL_ID`: The ID of the channel where the bot will send messages.
+#### Interaction Handling Flow
+
+When an interaction is received, the following occurs:
+
+1.  **Verification**: The request's signature is verified.
+2.  **Interaction Routing**: The interaction is routed to the appropriate command handler based on its type (`ApplicationCommand` or `MessageComponent`).
+3.  **Deferred Response**: The handler immediately returns a `DeferredChannelMessageWithSource` response. This tells Discord that we have received the interaction and will send a follow-up response later. This must happen within 3 seconds.
+4.  **Background Processing**: The actual command logic (e.g., generating a character, fetching equipment) is executed in the background using Cloudflare's `ctx.waitUntil()`. This allows for long-running tasks that can take more than the 3-second limit.
+5.  **Follow-up Response**: Once the background task is complete, it uses the Discord API to send a follow-up message to the user with the result of the command.
+
+This deferred response pattern is crucial for building a scalable and responsive bot on a serverless platform.
 
 ### Registering Slash Commands
 
-A script is available at `scripts/register-commands.ts` to register global slash commands with Discord. You can run this script using `npm run register-commands`.
+A script is available at `scripts/register-commands.ts` to register global slash commands with Discord. You can run this script using `npm run register-commands`. It reads command definitions from `app/lib/discord/commands/**/command.ts` and sends them to the Discord API.
 
 ### Setting up the Interactions Endpoint in Discord
 

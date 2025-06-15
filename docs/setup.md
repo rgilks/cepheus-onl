@@ -65,12 +65,11 @@ Create a new file named `.env.local` in the root of the project. This file will 
 NEXTAUTH_SECRET=
 NEXTAUTH_URL=http://localhost:3000
 
-# Discord OAuth
+# Discord OAuth & Bot
+# Get these from your application in the Discord Developer Portal
 DISCORD_CLIENT_ID=
 DISCORD_CLIENT_SECRET=
-
-# Discord Bot
-DISCORD_PUBLIC_KEY=
+DISCORD_APP_PUBLIC_KEY=
 DISCORD_BOT_TOKEN=
 DISCORD_CHANNEL_ID=
 ```
@@ -79,7 +78,7 @@ DISCORD_CHANNEL_ID=
 - `NEXTAUTH_URL`: The full URL of your application for redirects.
 - `DISCORD_CLIENT_ID`: The Client ID of your Discord application.
 - `DISCORD_CLIENT_SECRET`: The Client Secret of your Discord application.
-- `DISCORD_PUBLIC_KEY`: The Public Key of your Discord application, for verifying interaction signatures.
+- `DISCORD_APP_PUBLIC_KEY`: The Public Key of your Discord application, for verifying interaction signatures.
 - `DISCORD_BOT_TOKEN`: The token for your Discord bot.
 - `DISCORD_CHANNEL_ID`: The ID of the Discord channel for the bot to send messages to.
 
