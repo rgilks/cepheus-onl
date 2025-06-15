@@ -61,7 +61,7 @@ export const getActiveVisionModel = async (): Promise<{ name: string }> => {
 export const generateTextCompletion = async (prompt: string): Promise<string> => {
   try {
     const genAI: GoogleGenAI = await getGoogleAIClient();
-    const modelName = process.env['GOOGLE_AI_GENERATION_MODEL'] ?? 'gemini-1.5-flash-latest';
+    const modelName = process.env['GOOGLE_AI_GENERATION_MODEL'] ?? 'gemini-2.5-flash-preview-05-20';
 
     if (!process.env['GOOGLE_AI_GENERATION_MODEL']) {
       console.warn(
@@ -73,7 +73,7 @@ export const generateTextCompletion = async (prompt: string): Promise<string> =>
       model: modelName,
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
       config: {
-        maxOutputTokens: 2048,
+        maxOutputTokens: 4096,
         temperature: 0.8,
         topP: 0.95,
         topK: 40,

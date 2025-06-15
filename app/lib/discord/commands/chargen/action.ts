@@ -1,7 +1,5 @@
 import { generateTextCompletion } from 'app/lib/ai/google';
 import { CepheusSchema, type Cepheus } from '../../../domain/types/cepheus';
-import { NextResponse } from 'next/server';
-import { InteractionResponseType } from 'discord-interactions';
 
 const generatePrompt = () => {
   return `
@@ -34,7 +32,7 @@ const generatePrompt = () => {
     \`\`\`
 
     Ensure the generated character is interesting and feels like a real person in a sci-fi universe.
-    The backstory should be a few paragraphs long.
+    The backstory should be interesting, but very short - a single concise paragraph at most.
   `;
 };
 
@@ -44,7 +42,7 @@ const formatCharacter = (character: Cepheus) => {
   const careerString = careers.map(c => `${c.name} (${c.terms} terms)`).join(', ');
   const skillString = skills.map(s => `${s.name}-${s.level}`).join(', ');
 
-  let response = `**${name}**\t${upp}\tAge ${age}\n`;
+  let response = `-------------------\n\n${name}\t${upp}\tAge ${age}\n`;
   response += `${careerString}\tCr${credits.toLocaleString()}\n`;
   response += `${skillString}\n`;
 
@@ -53,15 +51,26 @@ const formatCharacter = (character: Cepheus) => {
   }
 
   if (equipment && equipment.length > 0) {
-    response += `${equipment.join(', ')}\n`;
+    response += `\n${equipment.join(', ')}\n`;
   }
 
-  response += `\n**Backstory**\n${backstory}`;
+  const formattedBackstory = backstory.replace(/(?<!\n)\n(?!\n)/g, '\n\n');
+  response += `\n${formattedBackstory}\n\n-------------------`;
 
   return response;
 };
 
-export const action = async () => {
+export const action = async (interaction: { application_id: string; token: string }) => {
+  const followupUrl = `https://discord.com/api/v10/webhooks/${interaction.application_id}/${interaction.token}/messages/@original`;
+
+  const sendFollowup = async (content: string) => {
+    await fetch(followupUrl, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content }),
+    });
+  };
+
   try {
     const prompt = generatePrompt();
     const aiResponseText = await generateTextCompletion(prompt);
@@ -103,13 +112,10 @@ export const action = async () => {
     if (!validationResult.success) {
       console.error('AI response validation failed:', validationResult.error.flatten());
       console.error('Parsed JSON was:', parsedJson);
-      return NextResponse.json({
-        type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-        data: {
-          content:
-            'Failed to generate a character. The AI response was not in the expected format.',
-        },
-      });
+      await sendFollowup(
+        'Failed to generate a character. The AI response was not in the expected format.'
+      );
+      return;
     }
 
     const character = validationResult.data;
@@ -117,19 +123,9 @@ export const action = async () => {
     const formattedCharacter = formatCharacter(character);
     console.log('Formatted character to be returned:', formattedCharacter);
 
-    return NextResponse.json({
-      type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-      data: {
-        content: formattedCharacter,
-      },
-    });
+    await sendFollowup(formattedCharacter);
   } catch (error) {
     console.error('Error generating character:', error);
-    return NextResponse.json({
-      type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-      data: {
-        content: 'An error occurred while generating the character.',
-      },
-    });
+    await sendFollowup('An error occurred while generating the character.');
   }
 };

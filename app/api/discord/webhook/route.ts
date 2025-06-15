@@ -42,7 +42,10 @@ export async function POST(request: NextRequest) {
     }
 
     if (name === 'chargen') {
-      return chargenAction();
+      chargenAction(interaction);
+      return NextResponse.json({
+        type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+      });
     }
   }
 
