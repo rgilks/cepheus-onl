@@ -1,5 +1,5 @@
 import { generateTextCompletion } from 'app/lib/ai/google';
-import { CepheusSchema, type Cepheus } from '../../../domain/types/cepheus';
+import { CepheusSchema, type Cepheus, type CepheusCareer } from '../../../domain/types';
 import { archetypes } from './archetypes';
 
 const generatePrompt = () => {
@@ -64,7 +64,7 @@ const extractJsonFromAiResponse = (text: string): string | null => {
 const formatCharacter = (character: Cepheus): string => {
   const { name, upp, age, careers, credits, skills, speciesTraits, equipment, backstory } =
     character;
-  const careerString = careers.map(c => `${c.name} (${c.terms} terms)`).join(', ');
+  const careerString = careers.map((c: CepheusCareer) => `${c.name} (${c.terms} terms)`).join(', ');
 
   const sortedSkills = [...skills]
     .sort((a, b) => a.name.localeCompare(b.name))

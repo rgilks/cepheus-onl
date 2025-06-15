@@ -24,6 +24,7 @@
     "migrate:generate": "drizzle-kit generate",
     "migrate:d1": "wrangler d1 migrations apply cepheus-onl-db",
     "migrate:local": "drizzle-kit push --config=drizzle.config.local.ts",
+    "db:seed": "tsx scripts/seed.ts",
     "discord:register-commands": "tsx scripts/register-commands.ts"
   },
   "dependencies": {
