@@ -30,3 +30,12 @@ Below is a summary of how the main GraphQL models are translated into SQL tables
 - `Initiative` -> `initiatives`
 - `Presence` -> `presences`
 - `DieRoll` -> `die_rolls`
+
+## Authentication Tables (NextAuth.js)
+
+In addition to the core application tables, the following tables are required by the `next-auth` Drizzle adapter to manage user authentication and sessions:
+
+- `users`: Stores user profile information (e.g., name, email, image). This is the central table for user accounts.
+- `accounts`: Links user accounts to different OAuth providers (e.g., a user's Discord account).
+- `sessions`: Stores active user sessions for authentication state management.
+- `verificationTokens`: Used for email-based login verification, although not currently used in our Discord-only OAuth flow.

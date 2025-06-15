@@ -53,7 +53,37 @@ The project uses Cloudflare D1 for its database and R2 for caching. You need to 
 
 4.  **Update Configuration:** The previous commands will output configuration details, including IDs for your new resources. Open the `wrangler.jsonc` file and update it with the correct `database_id` for your production D1 database and `preview_database_id` for your preview database. The R2 `bucket_name` should already be correctly set to `cepheus-onl-cache`.
 
-## Step 4: Run Database Migrations
+## Step 4: Configure Environment Variables
+
+Create a new file named `.env.local` in the root of the project. This file will hold your secret keys and environment-specific settings.
+
+```
+# .env.local
+
+# NextAuth.js
+# You can generate a secret with `openssl rand -hex 32`
+NEXTAUTH_SECRET=
+NEXTAUTH_URL=http://localhost:3000
+
+# Discord OAuth
+DISCORD_CLIENT_ID=
+DISCORD_CLIENT_SECRET=
+
+# Discord Bot
+DISCORD_PUBLIC_KEY=
+DISCORD_BOT_TOKEN=
+DISCORD_CHANNEL_ID=
+```
+
+- `NEXTAUTH_SECRET`: A secret key for NextAuth.js to sign tokens.
+- `NEXTAUTH_URL`: The full URL of your application for redirects.
+- `DISCORD_CLIENT_ID`: The Client ID of your Discord application.
+- `DISCORD_CLIENT_SECRET`: The Client Secret of your Discord application.
+- `DISCORD_PUBLIC_KEY`: The Public Key of your Discord application, for verifying interaction signatures.
+- `DISCORD_BOT_TOKEN`: The token for your Discord bot.
+- `DISCORD_CHANNEL_ID`: The ID of the Discord channel for the bot to send messages to.
+
+## Step 5: Run Database Migrations
 
 Apply the database schema to your local preview database.
 
@@ -63,7 +93,7 @@ npm run migrate:local
 
 This command uses the Drizzle ORM to set up the necessary tables in your `cepheus-onl-db-preview` database.
 
-## Step 5: Start the Development Server
+## Step 6: Start the Development Server
 
 You are now ready to run the application locally.
 

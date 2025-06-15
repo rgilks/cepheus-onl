@@ -38,18 +38,23 @@ The `sendMessage` function in `lib/discord.ts` handles sending messages to a spe
 
 An API route at `app/api/discord/message/route.ts` exposes this functionality.
 
-### Receiving Messages (Webhooks)
+### Handling Discord Interactions (Slash Commands)
 
-To receive messages from Discord, we use webhooks.
+To receive interactions from Discord, such as slash commands, we use an Interactions Endpoint.
 
-An API route at `app/api/discord/webhook/route.ts` is set up to receive incoming webhook payloads from Discord. This endpoint is secured with a secret.
+An API route at `app/api/discord/webhook/route.ts` is set up to receive incoming interaction payloads from Discord. This endpoint is secured by verifying the cryptographic signature of each request.
 
 - `DISCORD_BOT_TOKEN`: The token for your Discord bot.
+- `DISCORD_PUBLIC_KEY`: The public key for your Discord application, used to verify incoming interactions.
 - `DISCORD_CHANNEL_ID`: The ID of the channel where the bot will send messages.
-- `DISCORD_WEBHOOK_SECRET`: A secret to verify incoming webhooks.
 
-### Setting up the Webhook in Discord
+### Registering Slash Commands
 
-1.  Create a webhook in your Discord server's settings (Integrations > Webhooks).
-2.  The webhook endpoint in the application is `/api/discord/webhook`. You will need to use a tool like `ngrok` to expose your local development server to the internet to test this.
-3.  Secure your webhook by adding the `DISCORD_WEBHOOK_SECRET` to your environment variables and ensuring your bot sends this secret in a header (`x-webhook-secret`) with each request.
+A script is available at `scripts/register-commands.ts` to register global slash commands with Discord. You can run this script using `npm run register-commands`.
+
+### Setting up the Interactions Endpoint in Discord
+
+1.  Go to your application in the [Discord Developer Portal](https://discord.com/developers/applications).
+2.  In the "General Information" page, paste the public URL for your webhook endpoint into the "Interactions Endpoint URL" field.
+3.  For local development, you will need to use a tool like `ngrok` to expose your local server and provide the public `https` URL to Discord. The endpoint path is `/api/discord/webhook`.
+4.  Discord will send a `PING` interaction to verify the endpoint. The application code correctly handles this verification check.

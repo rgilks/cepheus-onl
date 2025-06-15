@@ -4,13 +4,11 @@ This document outlines the architecture for the Cepheus Engine Online platform. 
 
 ## Core Technologies
 
-- **Frontend**: Next.js (hosted on Cloudflare Pages)
-- **Backend API**: Cloudflare Workers
+- **Framework**: Next.js with OpenNext (running on Cloudflare Workers)
 - **Database**: Cloudflare D1 with Drizzle ORM
-- **Authentication**: Discord OAuth
+- **Authentication**: Discord OAuth via NextAuth.js
 - **Real-time Engine**: Cloudflare Durable Objects
 - **AI Game Master**: Cloudflare Workers AI
-- **Discord Bot**: Cloudflare Workers
 
 ## Architectural Diagram
 
@@ -22,9 +20,7 @@ graph TD
     end
 
     subgraph Cloudflare Network
-        C[Cloudflare Pages]
-        D[API Gateway / Worker]
-        E[Discord Bot Worker]
+        AppWorker[OpenNext Application Worker]
         F[Durable Objects for Game State]
         G[Cloudflare D1 Database]
         H[Workers AI]
@@ -34,52 +30,44 @@ graph TD
         I[Discord API]
     end
 
-    A -- HTTP Requests --> D
-    B -- Bot Commands/Interactions --> E
-    D -- DB Queries --> G
-    D -- Manages Game State --> F
-    D -- AI Calls --> H
-    E -- Responds to --> B
-    E -- Triggers Game Logic --> D
-    E -- Authenticates via --> I
+    A -- HTTP Requests --> AppWorker
+    B -- Bot Commands/Interactions --> AppWorker
+    AppWorker -- DB Queries --> G
+    AppWorker -- Manages Game State --> F
+    AppWorker -- AI Calls --> H
+    AppWorker -- Responds to --> B
+    AppWorker -- Authenticates via --> I
     F -- Persists State --> G
 ```
 
 ## System Breakdown
 
-### 1. Frontend (Next.js on Cloudflare Pages)
+### 1. Application Framework (Next.js with OpenNext)
 
-- The user interface is a Next.js application, providing a rich, interactive experience for character creation, viewing game boards, and managing games.
-- It will be statically generated where possible and hosted on Cloudflare Pages for fast global delivery.
-- The frontend authenticates with the backend by redirecting to a Discord OAuth flow, managed by a Cloudflare Worker. After authentication, a secure, HTTP-only cookie is used to manage the user's session.
+- The entire application is a monolithic Next.js project adapted for Cloudflare using the OpenNext library. This includes the UI, backend API, and Discord bot logic.
+- OpenNext compiles the Next.js application into a single Cloudflare Worker, allowing for server-side rendering, API routes, and static file serving from a unified deployment.
+- This architecture simplifies development and deployment while leveraging the performance of Cloudflare's global network.
 
-### 2. Backend (Cloudflare Workers)
+### 2. Authentication (Discord OAuth)
 
-- A primary Cloudflare Worker will serve as the main API for the Next.js application. It will handle:
-  - Data requests (e.g., fetching character sheets, game data).
-  - Executing game logic.
-  - Interacting with the D1 database via Drizzle ORM.
-  - Delegating real-time game state management to Durable Objects.
+- Users log in via Discord using NextAuth.js.
+- An API route at `/api/auth/[...nextauth]` handles the OAuth2 handshake with Discord's API.
+- Upon successful authentication, a session is created, and the user's Discord ID and profile information are stored in the `users` table, as defined by the Drizzle adapter schema.
 
-### 3. Authentication (Discord OAuth)
-
-- Users will log in via Discord.
-- A dedicated Worker endpoint will handle the OAuth2 handshake with Discord's API.
-- Upon successful authentication, a session is created, and the user's Discord ID and profile information are stored in the `players` table.
-
-### 4. Real-time Game State (Durable Objects)
+### 3. Real-time Game State (Durable Objects)
 
 - Each active game session (e.g., a specific game board or combat instance) will be managed by a unique Durable Object.
-- Durable Objects are ideal for this use case because they are single-threaded, stateful instances that can be accessed globally. This solves many of the complexities of managing real-time multiplayer state.
+- Durable Objects are ideal for this use case because they provide a single-threaded, stateful context that can be accessed globally, solving many complexities of managing real-time multiplayer state.
 - The Durable Object will hold the current state of the game in memory (e.g., piece positions, initiative order) and persist it to the D1 database periodically or when critical events occur.
 
-### 5. Discord Bot
+### 4. Discord Bot Integration
 
-- A separate Cloudflare Worker will handle interactions from the Discord bot.
-- It will process slash commands (e.g., `/roll`, `/character`) and interact with the main API worker or directly with the D1 database to fetch information and update game state.
+- The Discord "bot" is not a separate, long-running process. Instead, it consists of API routes within the Next.js application that handle interactions from Discord.
+- The primary endpoint at `/api/discord/webhook` receives all interactions (like slash commands) from Discord.
+- It processes commands (e.g., `/roll`, `/character`), interacts with the main API logic and D1 database, and sends responses back to Discord.
 - This allows players to interact with the game from within Discord, providing a seamless experience.
 
-### 6. Ruleset & AI Engine
+### 5. Ruleset & AI Engine
 
 - The game's rules, provided in the `data` directory as JSON files, will be seeded into the `rulesets` table in the D1 database.
 - When a game is created, it will be linked to a specific ruleset.
