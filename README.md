@@ -4,20 +4,21 @@ This project is an online platform for playing the Cepheus Engine tabletop RPG, 
 
 ## Tech Stack
 
-- **Framework:** [Next.js](https://nextjs.org/)
-- **Hosting & Backend:** [Cloudflare Pages](https://pages.cloudflare.com/) & [Cloudflare Workers](https://workers.cloudflare.com/)
-- **Database:** [Cloudflare D1](https://developers.cloudflare.com/d1/) with [Drizzle ORM](https://orm.drizzle.team/)
+- **Framework:** [Next.js](httpss://nextjs.org/) using the [OpenNext](httpss://opennext.js.org/) adapter
+- **Hosting & Backend:** [Cloudflare Workers](httpss://workers.cloudflare.com/)
+- **Database:** [Cloudflare D1](httpss://developers.cloudflare.com/d1/) with [Drizzle ORM](httpss://orm.drizzle.team/)
+- **Caching:** [Cloudflare R2](httpss://developers.cloudflare.com/r2/) for ISR and data cache
 - **Authentication:** Discord OAuth
-- **AI:** [Cloudflare Workers AI](https://developers.cloudflare.com/workers-ai/)
-- **UI:** [React](https://react.dev/) with [Tailwind CSS](https://tailwindcss.com/)
-- **Real-time:** [Cloudflare Durable Objects](https://developers.cloudflare.com/durable-objects/)
+- **AI:** [Cloudflare Workers AI](httpss://developers.cloudflare.com/workers-ai/)
+- **UI:** [React](httpss://react.dev/) with [Tailwind CSS](httpss://tailwindcss.com/)
+- **Real-time:** [Cloudflare Durable Objects](httpss://developers.cloudflare.com/durable-objects/)
 
 ## Getting Started
 
 1.  **Clone the repository:**
 
     ```bash
-    git clone <repository-url>
+    git clone https://github.com/rgilks/cepheus-onl.git
     cd cepheus-onl
     ```
 
@@ -27,14 +28,18 @@ This project is an online platform for playing the Cepheus Engine tabletop RPG, 
     npm install
     ```
 
-3.  **Set up Cloudflare D1:**
+3.  **Set up Cloudflare D1 & R2:**
 
     - Create your production and preview databases:
       ```bash
       npx wrangler d1 create cepheus-onl-db
       npx wrangler d1 create cepheus-onl-db-preview
       ```
-    - Update `wrangler.toml` with the `database_id` provided by the previous commands.
+    - Create your R2 cache bucket:
+      ```bash
+      npx wrangler r2 bucket create cepheus-onl-cache
+      ```
+    - Update `wrangler.jsonc` with the `database_id` and `preview_database_id` provided by the previous commands. The `bucket_name` should already be set correctly.
 
 4.  **Run local migrations:**
 
@@ -51,7 +56,15 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 ## Deployment
 
-This project is configured for deployment on [Cloudflare Pages](https://pages.cloudflare.com/). Simply connect your Git repository to a new Cloudflare Pages project and configure the necessary environment variables for Discord OAuth.
+This project is deployed to Cloudflare Workers via a GitHub Actions workflow defined in `.github/workflows/deploy.yml`.
+
+On every push to the `main` branch, the following steps are executed:
+
+1.  Dependencies are installed.
+2.  The Next.js application is built and adapted for Cloudflare using `@opennextjs/cloudflare`.
+3.  The application is deployed to Cloudflare Workers using the `wrangler` CLI.
+
+All configuration for the deployment, including D1 and R2 bindings, is managed in the `wrangler.jsonc` file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
