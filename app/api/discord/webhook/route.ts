@@ -1,15 +1,12 @@
 import { getCloudflareContext } from '@opennextjs/cloudflare';
 import { commandHandlers } from 'app/lib/discord/commands/handlers';
-import type { APIApplicationCommandInteraction, APIPingInteraction } from 'discord-api-types/v10';
+import type { APIInteraction } from 'discord-api-types/v10';
 import { InteractionResponseType, InteractionType } from 'discord-api-types/v10';
 import { verifyKey } from 'discord-interactions';
 import { NextResponse, type NextRequest } from 'next/server';
 
 const withDiscordVerification = (
-  handler: (
-    request: NextRequest,
-    interaction: APIPingInteraction | APIApplicationCommandInteraction
-  ) => Promise<Response> | Response
+  handler: (request: NextRequest, interaction: APIInteraction) => Promise<Response> | Response
 ) => {
   return async (request: NextRequest) => {
     const signature = request.headers.get('x-signature-ed25519');
@@ -32,32 +29,31 @@ const withDiscordVerification = (
       return new NextResponse('Bad request signature', { status: 401 });
     }
 
-    const interaction = JSON.parse(rawBody) as
-      | APIPingInteraction
-      | APIApplicationCommandInteraction;
+    const interaction = JSON.parse(rawBody) as APIInteraction;
     return handler(request, interaction);
   };
 };
 
-const handleInteraction = (
-  request: NextRequest,
-  interaction: APIPingInteraction | APIApplicationCommandInteraction
-) => {
+const handleInteraction = (request: NextRequest, interaction: APIInteraction) => {
   const { ctx } = getCloudflareContext();
 
   if (interaction.type === InteractionType.Ping) {
     return NextResponse.json({ type: InteractionResponseType.Pong });
   }
 
+  let handler;
   if (interaction.type === InteractionType.ApplicationCommand) {
-    const handler = commandHandlers[interaction.data.name];
-
-    if (handler) {
-      return handler(interaction, { request, ctx });
-    }
+    handler = commandHandlers[interaction.data.name];
+  } else if (interaction.type === InteractionType.MessageComponent) {
+    const commandName = interaction.data.custom_id.split('_')[0];
+    handler = commandHandlers[commandName];
   }
 
-  return NextResponse.json({ error: 'Unhandled interaction type' }, { status: 400 });
+  if (handler) {
+    return handler(interaction, { request, ctx });
+  }
+
+  return NextResponse.json({ error: 'Unhandled interaction' }, { status: 400 });
 };
 
 export const POST = withDiscordVerification(handleInteraction);
