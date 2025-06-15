@@ -5,19 +5,22 @@ import {
   type APIInteractionResponseUpdateMessage,
 } from 'discord-api-types/v10';
 
-const token = process.env.DISCORD_BOT_TOKEN;
+const getRestClient = () => {
+  const token = process.env.DISCORD_BOT_TOKEN;
 
-if (!token) {
-  throw new Error('DISCORD_BOT_TOKEN not set');
-}
+  if (!token) {
+    throw new Error('DISCORD_BOT_TOKEN not set');
+  }
 
-const rest = new REST({ version: '10' }).setToken(token);
+  return new REST({ version: '10' }).setToken(token);
+};
 
 const createFollowupMessage = (
   applicationId: string,
   interactionToken: string,
   message: RESTPostAPIInteractionFollowupJSONBody
 ) => {
+  const rest = getRestClient();
   return rest.post(Routes.webhook(applicationId, interactionToken), {
     body: message,
   });
@@ -28,6 +31,7 @@ const editOriginalInteractionResponse = (
   interactionToken: string,
   message: APIInteractionResponseUpdateMessage['data']
 ) => {
+  const rest = getRestClient();
   return rest.patch(Routes.webhookMessage(applicationId, interactionToken, '@original'), {
     body: message,
   });
