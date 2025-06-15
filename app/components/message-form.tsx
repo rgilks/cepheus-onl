@@ -1,38 +1,56 @@
 'use client';
 
 import { useSound } from '@/lib/hooks';
-import { useState } from 'react';
+import { useActionState } from 'react';
+import { useFormStatus } from 'react-dom';
+import { sendDiscordMessage, type FormState } from '../lib/discord/actions';
+import { useEffect, useRef } from 'react';
 
-export default function MessageForm() {
-  const [message, setMessage] = useState('');
-  const playClickSound = useSound('/mp3/beep_electric_3.mp3', 0.5);
+const initialState: FormState = {
+  message: '',
+  errors: undefined,
+};
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    playClickSound();
-    await fetch('/api/discord/message', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ message }),
-    });
-    setMessage('');
-  };
+function SubmitButton() {
+  const { pending } = useFormStatus();
 
   return (
-    <form onSubmit={handleSubmit} className="mt-4">
+    <button type="submit" className="bg-blue-500 text-white p-2 rounded" aria-disabled={pending}>
+      {pending ? 'Sending...' : 'Send Message'}
+    </button>
+  );
+}
+
+export default function MessageForm() {
+  const [state, formAction] = useActionState(sendDiscordMessage, initialState);
+  const playClickSound = useSound('/mp3/beep_electric_3.mp3', 0.5);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  useEffect(() => {
+    if (state.message === 'Message sent successfully.') {
+      formRef.current?.reset();
+    }
+  }, [state]);
+
+  return (
+    <form ref={formRef} action={formAction} onSubmit={() => playClickSound()} className="mt-4">
       <input
         type="text"
-        value={message}
-        onChange={e => setMessage(e.target.value)}
+        name="message"
         className="border p-2 mr-2"
         placeholder="Enter a message to send to Discord"
         required
       />
-      <button type="submit" className="bg-blue-500 text-white p-2 rounded">
-        Send Message
-      </button>
+      <SubmitButton />
+      <p aria-live="polite" className="sr-only" role="status">
+        {state?.message}
+      </p>
+      {state.errors?.message &&
+        state.errors.message.map((error: string) => (
+          <p className="text-sm font-medium text-red-500" key={error}>
+            {error}
+          </p>
+        ))}
     </form>
   );
 }
