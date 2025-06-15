@@ -54,4 +54,7 @@ amplifyconfiguration*
 # open-next
 .open-next/
 
+# wrangler
+.wrangler/
+
 **/node_modules

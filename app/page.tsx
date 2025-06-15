@@ -2,6 +2,8 @@ import { getDb } from '@/db';
 import { notes } from '@/db/schema';
 import { revalidatePath } from 'next/cache';
 
+export const dynamic = 'force-dynamic';
+
 export default async function Home() {
   const db = getDb();
   const allNotes = await db.select().from(notes).all();
