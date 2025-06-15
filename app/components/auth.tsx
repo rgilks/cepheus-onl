@@ -3,7 +3,7 @@
 import { useSession, signIn, signOut } from 'next-auth/react';
 import { useSound } from '@/lib/hooks';
 
-export default function Auth() {
+const Auth = () => {
   const { data: session } = useSession();
   const playClickSound = useSound('/mp3/beep_electric_2.mp3', 0.5);
 
@@ -32,4 +32,6 @@ export default function Auth() {
       Sign in with Discord
     </button>
   );
-}
+};
+
+export default Auth;

@@ -10,10 +10,10 @@ export type FormState = {
   };
 };
 
-export async function sendDiscordMessage(
+export const sendDiscordMessage = async (
   _prevState: FormState,
   formData: FormData
-): Promise<FormState> {
+): Promise<FormState> => {
   const validatedFields = DiscordMessageSchema.safeParse({
     message: formData.get('message'),
   });
@@ -36,4 +36,4 @@ export async function sendDiscordMessage(
   } catch {
     return { message: 'Failed to send message.' };
   }
-}
+};

@@ -11,7 +11,7 @@ const initialState: FormState = {
   errors: undefined,
 };
 
-function SubmitButton() {
+const SubmitButton = () => {
   const { pending } = useFormStatus();
 
   return (
@@ -19,9 +19,9 @@ function SubmitButton() {
       {pending ? 'Sending...' : 'Send Message'}
     </button>
   );
-}
+};
 
-export default function MessageForm() {
+const MessageForm = () => {
   const [state, formAction] = useActionState(sendDiscordMessage, initialState);
   const playClickSound = useSound('/mp3/beep_electric_3.mp3', 0.5);
   const formRef = useRef<HTMLFormElement>(null);
@@ -53,4 +53,6 @@ export default function MessageForm() {
         ))}
     </form>
   );
-}
+};
+
+export default MessageForm;

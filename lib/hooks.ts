@@ -2,7 +2,7 @@
 
 import { useCallback } from 'react';
 
-export function useSound(soundUrl: string, volume = 1.0) {
+export const useSound = (soundUrl: string, volume = 1.0) => {
   const playSound = useCallback(() => {
     const audio = new Audio(soundUrl);
     audio.volume = volume;
@@ -12,4 +12,4 @@ export function useSound(soundUrl: string, volume = 1.0) {
   }, [soundUrl, volume]);
 
   return playSound;
-}
+};

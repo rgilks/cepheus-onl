@@ -1,6 +1,6 @@
 import { Routes } from 'discord-api-types/v10';
 
-export async function sendMessage(channelId: string, message: string) {
+export const sendMessage = async (channelId: string, message: string) => {
   const url = `https://discord.com/api/v10${Routes.channelMessages(channelId)}`;
   const token = process.env.DISCORD_BOT_TOKEN;
 
@@ -29,4 +29,4 @@ export async function sendMessage(channelId: string, message: string) {
     console.error('Failed to send message to Discord:', error);
     throw error;
   }
-}
+};
