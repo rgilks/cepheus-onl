@@ -13,6 +13,14 @@ This project is an online platform for playing the Cepheus Engine tabletop RPG, 
 - **UI:** [React](httpss://react.dev/) with [Tailwind CSS](httpss://tailwindcss.com/)
 - **Real-time:** [Cloudflare Durable Objects](httpss://developers.cloudflare.com/durable-objects/)
 
+## Architecture
+
+For a detailed analysis of the application's scalability, concurrency handling, and cost structure, please see the [Scalability and Cost Analysis](./docs/scalability_and_cost_analysis.md) document.
+
+## Discord Integration
+
+This project uses NextAuth.js for Discord authentication and the Discord API for bot interactions. For a detailed guide on the setup, environment variables, and messaging implementation, please see the [Discord Integration](./docs/discord-integration.md) document.
+
 ## Getting Started
 
 1.  **Clone the repository:**
