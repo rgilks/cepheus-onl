@@ -16,7 +16,7 @@
     {
       "binding": "DB",
       "database_name": "cepheus-onl-db",
-      "database_id": "18e5b778-b1cb-4c67-9ec5-4f07e21715a1",
+      "database_id": "37055452-8124-41ff-8bd2-180e614f4139",
       "preview_database_id": "cepheus-onl-db-preview",
       "migrations_dir": "migrations",
     },
