@@ -1,5 +1,6 @@
 import { InteractionResponseType, InteractionType, verifyKey } from 'discord-interactions';
 import { NextResponse, type NextRequest } from 'next/server';
+import { action as chargenAction } from 'app/lib/discord/commands/chargen/action';
 
 export async function POST(request: NextRequest) {
   const signature = request.headers.get('x-signature-ed25519');
@@ -38,6 +39,10 @@ export async function POST(request: NextRequest) {
           content: 'Hello there!',
         },
       });
+    }
+
+    if (name === 'chargen') {
+      return chargenAction();
     }
   }
 

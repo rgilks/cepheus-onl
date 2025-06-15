@@ -14,6 +14,10 @@ const commands = [
     name: 'hello',
     description: 'A simple test command that replies!',
   },
+  {
+    name: 'chargen',
+    description: 'Generates a random Cepheus Engine character.',
+  },
 ];
 
 const rest = new REST({ version: '10' }).setToken(token);
