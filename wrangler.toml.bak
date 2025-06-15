@@ -1,0 +1,13 @@
+name = "cepheus-onl"
+compatibility_date = "2024-05-02"
+pages_build_output_dir = ".open-next/assets"
+
+[vars]
+DB_BINDING = "DB"
+
+[[d1_databases]]
+binding = "DB"                                 # i.e. available in your Worker on env.DB
+database_name = "cepheus-onl-db"
+database_id = "18e5b778-b1cb-4c67-9ec5-4f07e21715a1"                               # You will get this when you create the DB
+preview_database_id = "cepheus-onl-db-preview"
+migrations_dir = "migrations"

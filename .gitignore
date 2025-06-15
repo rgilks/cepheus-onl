@@ -51,4 +51,7 @@ amplifyconfiguration*
 # VSCode
 .vscode
 
+# open-next
+.open-next/
+
 **/node_modules
