@@ -1,12 +1,15 @@
 'use client';
 
+import { useSound } from '@/lib/hooks';
 import { useState } from 'react';
 
 export default function MessageForm() {
   const [message, setMessage] = useState('');
+  const playClickSound = useSound('/mp3/beep_button.mp3');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    playClickSound();
     await fetch('/api/discord/message', {
       method: 'POST',
       headers: {
