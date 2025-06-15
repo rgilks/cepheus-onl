@@ -8,9 +8,6 @@
     "directory": ".open-next/assets",
     "binding": "ASSETS",
   },
-  "vars": {
-    "DB_BINDING": "DB",
-  },
   "observability": {
     "enabled": true,
     "head_sampling_rate": 1,
