@@ -1,26 +1,24 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# dependencies
+# Dependencies
 /node_modules
 /.pnp
 .pnp.js
-.yarn/install-state.gz
 
-# testing
+# Testing
 /coverage
-/test-results
-/playwright-report/
-/playwright/.cache/
-/playwright/.auth/
 
-# next.js
+# Next.js
 /.next/
 /out/
 
-# production
+# Production
 /build
 
-# misc
+# Local
+local.db
+
+# Misc
 .DS_Store
 *.pem
 
@@ -29,32 +27,23 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# local env files
-.env*.local
+# Local Env Files
 .env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
-# vercel
-.vercel
+# Playwright
+/playwright-report/
+/test-results/
 
-# typescript
-*.tsbuildinfo
-next-env.d.ts
+# OpenNext
+.open-next
 
-# amplify
-.amplify
-amplify_outputs*
-amplifyconfiguration*
+# TS build info
+tsconfig.tsbuildinfo
 
-# Test screenshots
-/screenshots/*.png
-
-# VSCode
-.vscode
-
-# open-next
-.open-next/
-
-# wrangler
 .wrangler/
 
-**/node_modules
+local.db
