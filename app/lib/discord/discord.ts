@@ -12,7 +12,7 @@ const getRestClient = () => {
     throw new Error('DISCORD_BOT_TOKEN not set');
   }
 
-  return new REST({ version: '10' }).setToken(token);
+  return new REST({ version: '10', api: 'https://discord.com/api' }).setToken(token);
 };
 
 const createFollowupMessage = (
