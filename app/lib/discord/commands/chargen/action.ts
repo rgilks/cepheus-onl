@@ -15,7 +15,7 @@ const generatePrompt = () => {
 
     \`\`\`json
     {
-      "name": "string (The full name of the character, including any titles.)",
+      "name": "string (A cool and evocative name suitable for the Traveller RPG setting. Avoid common or generic names like 'Vance'.)",
       "upp": "string (The Universal Personality Profile of the character, 6 characters, hex values 0-F)",
       "age": "number (The age of the character in years.)",
       "careers": [
@@ -46,11 +46,10 @@ const generateImagePrompt = (character: Cepheus): string => {
   const { name, backstory, speciesTraits } = character;
   const species = speciesTraits?.join(', ') ?? 'human';
   return `
-    Create a portrait of a character for a sci-fi RPG.
-    The character's name is ${name}.
-    They are a ${species}.
-    Here is their backstory: ${backstory}
-    The style should be a cool, gritty, 70s sci-fi movie poster.
+    A film still from a 1970s science fiction movie. A portrait of ${name}, a ${species}.
+    The lighting is dramatic, with high contrast and a grainy, film-like texture. The colors are slightly faded, with a warm, retro color palette.
+    Here is a short description of the character: ${backstory}.
+    No text, no titles, no words, no watermarks.
   `;
 };
 
