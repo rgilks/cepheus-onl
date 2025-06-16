@@ -31,9 +31,6 @@ const chargenHandler: CommandHandler = (interaction, { ctx }) => {
   ctx.waitUntil(chargenAction(interaction as APIApplicationCommandInteraction));
   return NextResponse.json({
     type: InteractionResponseType.DeferredChannelMessageWithSource,
-    data: {
-      flags: MessageFlags.Ephemeral,
-    },
   });
 };
 
