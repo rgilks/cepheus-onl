@@ -181,24 +181,31 @@ export const action = async (interaction: { application_id: string; token: strin
     console.log('[Chargen] Character data generated successfully.');
 
     const formattedCharacter = formatCharacter(character);
-    const imagePrompt = generateImagePrompt(character);
-    const image = await generateImage(imagePrompt);
 
-    console.log(`[Chargen] Received image data. Type: ${typeof image}, Length: ${image.length}`);
-    if (!(image instanceof Uint8Array) || image.length === 0) {
-      throw new Error('Generated image data is invalid or empty.');
-    }
+    if (process.env.IMAGE_GENERATION_ENABLED === 'true') {
+      const imagePrompt = generateImagePrompt(character);
+      const image = await generateImage(imagePrompt);
 
-    await sendFollowup(formattedCharacter, image);
-    console.log('[Chargen] Follow-up message sent successfully.');
+      console.log(`[Chargen] Received image data. Type: ${typeof image}, Length: ${image.length}`);
+      if (!(image instanceof Uint8Array) || image.length === 0) {
+        throw new Error('Generated image data is invalid or empty.');
+      }
 
-    try {
-      console.log('[Chargen] Uploading character image to R2...');
-      const key = await uploadToR2({ body: image, contentType: 'image/png' });
-      console.log(`[Chargen] Successfully uploaded character image to R2 with key: ${key}`);
-      await saveGeneratedCharacter(character, key);
-    } catch (uploadError) {
-      console.error('[Chargen] Failed to upload character image to R2:', uploadError);
+      await sendFollowup(formattedCharacter, image);
+      console.log('[Chargen] Follow-up message sent successfully.');
+
+      try {
+        console.log('[Chargen] Uploading character image to R2...');
+        const key = await uploadToR2({ body: image, contentType: 'image/png' });
+        console.log(`[Chargen] Successfully uploaded character image to R2 with key: ${key}`);
+        await saveGeneratedCharacter(character, key);
+      } catch (uploadError) {
+        console.error('[Chargen] Failed to upload character image to R2:', uploadError);
+      }
+    } else {
+      await sendFollowup(formattedCharacter);
+      console.log('[Chargen] Follow-up message sent successfully (image generation disabled).');
+      await saveGeneratedCharacter(character, ''); // Pass an empty string for the key
     }
   } catch (error) {
     console.error('Error generating character:', error);

@@ -77,6 +77,7 @@ DISCORD_CHANNEL_ID=
 # Google AI
 # Get this from Google AI Studio
 GOOGLE_AI_API_KEY=
+IMAGE_GENERATION_ENABLED=true
 
 # Cloudflare R2
 # These are required for the application to upload images to R2.
@@ -96,12 +97,13 @@ R2_BUCKET_NAME=cepheus-onl-images
 - `DISCORD_BOT_TOKEN`: The token for your Discord bot.
 - `DISCORD_CHANNEL_ID`: The ID of the Discord channel for the bot to send messages to.
 - `GOOGLE_AI_API_KEY`: Your API key for Google AI services.
+- `IMAGE_GENERATION_ENABLED`: Set to `true` to enable AI image generation for characters.
 - `R2_ACCOUNT_ID`: Your Cloudflare account ID.
 - `R2_ACCESS_KEY_ID`: The access key for your R2 API token.
 - `R2_SECRET_ACCESS_KEY`: The secret key for your R2 API token.
 - `R2_BUCKET_NAME`: The name of the R2 bucket for storing images.
 
-**Note on Production Secrets:** For a production deployment, sensitive values like `DISCORD_CLIENT_SECRET`, `DISCORD_BOT_TOKEN`, `GOOGLE_AI_API_KEY`, and R2 credentials should not be stored in `wrangler.jsonc` or `.env` files. Instead, they should be set as secrets using the `wrangler secret put` command.
+**Note on Production Secrets:** For a production deployment, sensitive values like `DISCORD_CLIENT_SECRET`, `DISCORD_BOT_TOKEN`, `GOOGLE_AI_API_KEY`, and R2 credentials should not be stored in `wrangler.jsonc` or `.env` files. Instead, they should be set as secrets using the `wrangler secret put` command. The `IMAGE_GENERATION_ENABLED` flag can also be managed this way if you wish to control it remotely.
 
 ## Step 5: Run Database Migrations
 

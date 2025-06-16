@@ -33,5 +33,6 @@
   ],
   "vars": {
     "R2_BUCKET_NAME": "cepheus-onl-images",
+    "IMAGE_GENERATION_ENABLED": "false",
   },
 }
