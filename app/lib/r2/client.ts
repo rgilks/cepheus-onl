@@ -21,7 +21,7 @@ const getS3Client = (): S3Client => {
   });
 };
 
-export const uploadImage = async (image: Buffer): Promise<string> => {
+export const uploadImage = async (image: Uint8Array): Promise<string> => {
   const client = getS3Client();
   const bucketName = process.env.R2_BUCKET_NAME;
   const publicDomain = process.env.R2_PUBLIC_DOMAIN;

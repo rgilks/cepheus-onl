@@ -173,7 +173,7 @@ export const action = async (interaction: { application_id: string; token: strin
     console.log('[Chargen] Character data generated successfully.');
     const formattedCharacter = formatCharacter(character);
     const imagePrompt = generateImagePrompt(character);
-    const image = await generateImage(imagePrompt);
+    const image: Uint8Array = await generateImage(imagePrompt);
     console.log('[Chargen] Character image generated successfully.');
 
     const imageUrl = await uploadImage(image);

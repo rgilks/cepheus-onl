@@ -31,7 +31,7 @@ export const generateTextCompletion = async (prompt: string): Promise<string> =>
   }
 };
 
-export const generateImage = async (prompt: string): Promise<Buffer> => {
+export const generateImage = async (prompt: string): Promise<Uint8Array> => {
   try {
     console.log('[AI] Generating image with prompt:', prompt);
     const genAI: GoogleGenAI = await getGoogleAIClient();
@@ -49,7 +49,16 @@ export const generateImage = async (prompt: string): Promise<Buffer> => {
     const image = result.generatedImages?.[0];
 
     if (image?.image?.imageBytes) {
-      return Buffer.from(image.image.imageBytes);
+      if (typeof image.image.imageBytes === 'string') {
+        const binaryString = atob(image.image.imageBytes);
+        const len = binaryString.length;
+        const bytes = new Uint8Array(len);
+        for (let i = 0; i < len; i++) {
+          bytes[i] = binaryString.charCodeAt(i);
+        }
+        return bytes;
+      }
+      return image.image.imageBytes;
     }
 
     throw new Error('No image data received from AI.');
