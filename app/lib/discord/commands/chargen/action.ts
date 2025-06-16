@@ -1,4 +1,4 @@
-import { generateTextCompletion } from 'app/lib/ai/google';
+import { generateImage, generateTextCompletion } from 'app/lib/ai/google';
 import { CepheusSchema, type Cepheus, type CepheusCareer } from '../../../domain/types';
 import { archetypes } from './archetypes';
 
@@ -39,6 +39,18 @@ const generatePrompt = () => {
 
     Ensure the generated character is interesting and feels like a real person in a sci-fi universe.
     The backstory should be interesting, but very short - a single concise paragraph at most.
+  `;
+};
+
+const generateImagePrompt = (character: Cepheus): string => {
+  const { name, backstory, speciesTraits } = character;
+  const species = speciesTraits?.join(', ') ?? 'human';
+  return `
+    Create a portrait of a character for a sci-fi RPG.
+    The character's name is ${name}.
+    They are a ${species}.
+    Here is their backstory: ${backstory}
+    The style should be a cool, gritty, 70s sci-fi movie poster.
   `;
 };
 
@@ -133,24 +145,43 @@ const generateCharacterData = async (): Promise<Cepheus> => {
 export const action = async (interaction: { application_id: string; token: string }) => {
   const followupUrl = `https://discord.com/api/v10/webhooks/${interaction.application_id}/${interaction.token}/messages/@original`;
 
-  const sendFollowup = async (content: string) => {
+  const sendFollowup = async (content: string, image?: Buffer) => {
+    const formData = new FormData();
+    formData.append('payload_json', JSON.stringify({ content }));
+    if (image) {
+      formData.append('files[0]', new Blob([image]), 'character.png');
+    }
+
+    await fetch(followupUrl, {
+      method: 'PATCH',
+      body: formData,
+    });
+  };
+
+  const sendError = async (message: string) => {
     await fetch(followupUrl, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content }),
+      body: JSON.stringify({ content: message }),
     });
   };
 
   try {
+    console.log('[Chargen] Starting character generation...');
     const character = await generateCharacterData();
+    console.log('[Chargen] Character data generated successfully.');
     const formattedCharacter = formatCharacter(character);
-    await sendFollowup(formattedCharacter);
+    const imagePrompt = generateImagePrompt(character);
+    const image = await generateImage(imagePrompt);
+    console.log('[Chargen] Character image generated successfully.');
+    await sendFollowup(formattedCharacter, image);
+    console.log('[Chargen] Follow-up message sent successfully.');
   } catch (error) {
     console.error('Error generating character:', error);
     const errorMessage =
       error instanceof Error && error.message.includes('AI response')
         ? 'Failed to generate a character. The AI response was not in the expected format.'
         : 'An error occurred while generating the character.';
-    await sendFollowup(errorMessage);
+    await sendError(errorMessage);
   }
 };
