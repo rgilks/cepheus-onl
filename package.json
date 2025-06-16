@@ -30,10 +30,6 @@
   },
   "dependencies": {
     "@auth/drizzle-adapter": "^1.9.1",
-    "@aws-crypto/sha256-browser": "^5.2.0",
-    "@aws-sdk/client-s3": "^3.828.0",
-    "@aws-sdk/fetch-http-handler": "^3.370.0",
-    "@aws-sdk/s3-request-presigner": "^3.828.0",
     "@dimforge/rapier3d": "^0.17.3",
     "@dimforge/rapier3d-compat": "^0.17.3",
     "@google-cloud/text-to-speech": "^6.1.0",
@@ -56,7 +52,6 @@
     "react-dom": "^19.1.0",
     "simplex-noise": "^4.0.3",
     "three": "^0.177.0",
-    "uuid": "^11.1.0",
     "zod": "^3.25.64",
     "zustand": "^5.0.5"
   },

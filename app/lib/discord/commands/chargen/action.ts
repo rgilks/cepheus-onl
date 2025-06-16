@@ -1,5 +1,4 @@
 import { generateImage, generateTextCompletion } from 'app/lib/ai/google';
-import { uploadImage } from 'app/lib/r2/client';
 import { CepheusSchema, type Cepheus, type CepheusCareer } from '../../../domain/types';
 import { archetypes } from './archetypes';
 
@@ -146,16 +145,22 @@ const generateCharacterData = async (): Promise<Cepheus> => {
 export const action = async (interaction: { application_id: string; token: string }) => {
   const followupUrl = `https://discord.com/api/v10/webhooks/${interaction.application_id}/${interaction.token}/messages/@original`;
 
-  const sendFollowup = async (content: string, imageUrl?: string) => {
+  const sendFollowup = async (content: string, image?: Uint8Array) => {
+    const formData = new FormData();
     const payload = {
       content,
-      embeds: imageUrl ? [{ image: { url: imageUrl } }] : [],
+      embeds: image ? [{ image: { url: 'attachment://character.png' } }] : [],
+      attachments: image ? [{ id: 0, filename: 'character.png' }] : [],
     };
+    formData.append('payload_json', JSON.stringify(payload));
+
+    if (image) {
+      formData.append('files[0]', new Blob([image]), 'character.png');
+    }
 
     await fetch(followupUrl, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+      body: formData,
     });
   };
 
@@ -171,15 +176,17 @@ export const action = async (interaction: { application_id: string; token: strin
     console.log('[Chargen] Starting character generation...');
     const character = await generateCharacterData();
     console.log('[Chargen] Character data generated successfully.');
+
     const formattedCharacter = formatCharacter(character);
     const imagePrompt = generateImagePrompt(character);
-    const image: Uint8Array = await generateImage(imagePrompt);
-    console.log('[Chargen] Character image generated successfully.');
+    const image = await generateImage(imagePrompt);
 
-    const imageUrl = await uploadImage(image);
-    console.log('[Chargen] Image uploaded to R2 successfully.');
+    console.log(`[Chargen] Received image data. Type: ${typeof image}, Length: ${image.length}`);
+    if (!(image instanceof Uint8Array) || image.length === 0) {
+      throw new Error('Generated image data is invalid or empty.');
+    }
 
-    await sendFollowup(formattedCharacter, imageUrl);
+    await sendFollowup(formattedCharacter, image);
     console.log('[Chargen] Follow-up message sent successfully.');
   } catch (error) {
     console.error('Error generating character:', error);
