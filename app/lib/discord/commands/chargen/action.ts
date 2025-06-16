@@ -147,7 +147,12 @@ export const action = async (interaction: { application_id: string; token: strin
 
   const sendFollowup = async (content: string, image?: Buffer) => {
     const formData = new FormData();
-    formData.append('payload_json', JSON.stringify({ content }));
+    const payload = {
+      content,
+      embeds: image ? [{ image: { url: 'attachment://character.png' } }] : [],
+    };
+    formData.append('payload_json', JSON.stringify(payload));
+
     if (image) {
       formData.append('files[0]', new Blob([image]), 'character.png');
     }
