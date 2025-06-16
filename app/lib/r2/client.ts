@@ -1,4 +1,5 @@
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { FetchHttpHandler } from '@aws-sdk/fetch-http-handler';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -36,12 +37,22 @@ export const uploadImage = async (image: Uint8Array): Promise<string> => {
   const command = new PutObjectCommand({
     Bucket: bucketName,
     Key: key,
-    Body: image,
     ContentType: 'image/png',
+    ContentLength: image.length,
   });
 
   try {
-    await client.send(command);
+    const signedUrl = await getSignedUrl(client, command, { expiresIn: 60 });
+    console.log(`[R2] Successfully generated signed URL for ${key}`);
+
+    await fetch(signedUrl, {
+      method: 'PUT',
+      body: image,
+      headers: {
+        'Content-Type': 'image/png',
+      },
+    });
+
     const url = `${publicDomain}/${key}`;
     console.log(`[R2] Successfully uploaded image to ${url}`);
     return url;
