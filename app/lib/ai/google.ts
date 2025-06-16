@@ -50,13 +50,7 @@ export const generateImage = async (prompt: string): Promise<Uint8Array> => {
 
     if (image?.image?.imageBytes) {
       if (typeof image.image.imageBytes === 'string') {
-        const binaryString = atob(image.image.imageBytes);
-        const len = binaryString.length;
-        const bytes = new Uint8Array(len);
-        for (let i = 0; i < len; i++) {
-          bytes[i] = binaryString.charCodeAt(i);
-        }
-        return bytes;
+        return Buffer.from(image.image.imageBytes, 'base64');
       }
       return image.image.imageBytes;
     }
