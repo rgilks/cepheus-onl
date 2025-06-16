@@ -1,4 +1,5 @@
 import { generateImage, generateTextCompletion } from 'app/lib/ai/google';
+import { uploadImage } from 'app/lib/r2/client';
 import { CepheusSchema, type Cepheus, type CepheusCareer } from '../../../domain/types';
 import { archetypes } from './archetypes';
 
@@ -145,22 +146,16 @@ const generateCharacterData = async (): Promise<Cepheus> => {
 export const action = async (interaction: { application_id: string; token: string }) => {
   const followupUrl = `https://discord.com/api/v10/webhooks/${interaction.application_id}/${interaction.token}/messages/@original`;
 
-  const sendFollowup = async (content: string, image?: Buffer) => {
-    const formData = new FormData();
+  const sendFollowup = async (content: string, imageUrl?: string) => {
     const payload = {
       content,
-      embeds: image ? [{ image: { url: 'attachment://character.png' } }] : [],
-      attachments: image ? [{ id: 0, filename: 'character.png' }] : [],
+      embeds: imageUrl ? [{ image: { url: imageUrl } }] : [],
     };
-    formData.append('payload_json', JSON.stringify(payload));
-
-    if (image) {
-      formData.append('files[0]', new Blob([image]), 'character.png');
-    }
 
     await fetch(followupUrl, {
       method: 'PATCH',
-      body: formData,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
     });
   };
 
@@ -180,7 +175,11 @@ export const action = async (interaction: { application_id: string; token: strin
     const imagePrompt = generateImagePrompt(character);
     const image = await generateImage(imagePrompt);
     console.log('[Chargen] Character image generated successfully.');
-    await sendFollowup(formattedCharacter, image);
+
+    const imageUrl = await uploadImage(image);
+    console.log('[Chargen] Image uploaded to R2 successfully.');
+
+    await sendFollowup(formattedCharacter, imageUrl);
     console.log('[Chargen] Follow-up message sent successfully.');
   } catch (error) {
     console.error('Error generating character:', error);
