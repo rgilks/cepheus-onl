@@ -238,6 +238,25 @@ export const characters = sqliteTable('characters', {
     .$defaultFn(() => new Date()),
 });
 
+export const generatedCharacters = sqliteTable('generated_characters', {
+  id: text('id')
+    .primaryKey()
+    .$defaultFn(() => nanoid()),
+  name: text('name').notNull(),
+  upp: text('upp').notNull(),
+  age: integer('age').notNull(),
+  careers: text('careers', { mode: 'json' }).notNull(),
+  credits: integer('credits').notNull(),
+  skills: text('skills', { mode: 'json' }).notNull(),
+  speciesTraits: text('speciesTraits', { mode: 'json' }),
+  equipment: text('equipment', { mode: 'json' }),
+  backstory: text('backstory'),
+  r2_image_key: text('r2_image_key'),
+  createdAt: integer('createdAt', { mode: 'timestamp_ms' })
+    .notNull()
+    .$defaultFn(() => new Date()),
+});
+
 export const pieces = sqliteTable('pieces', {
   id: text('id')
     .primaryKey()
