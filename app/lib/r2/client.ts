@@ -1,4 +1,5 @@
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { FetchHttpHandler } from '@aws-sdk/fetch-http-handler';
 import { v4 as uuidv4 } from 'uuid';
 
 const getS3Client = (): S3Client => {
@@ -18,6 +19,7 @@ const getS3Client = (): S3Client => {
       accessKeyId,
       secretAccessKey,
     },
+    requestHandler: new FetchHttpHandler(),
   });
 };
 
