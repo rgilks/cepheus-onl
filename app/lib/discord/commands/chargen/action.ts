@@ -47,15 +47,24 @@ const generatePrompt = () => {
 };
 
 const generateImagePrompt = (character: Cepheus): string => {
-  const { backstory, speciesTraits } = character;
+  const { age, careers, equipment, speciesTraits } = character;
   const species = speciesTraits?.join(', ') ?? 'human';
+
+  const careerDesc = careers.map((c: CepheusCareer) => c.name).join(', ');
+  const equipmentList =
+    equipment && equipment.length > 0 ? `equipped with ${equipment.join(', ')}` : '';
+
+  const visualCues = [`a ${age}-year-old ${species}`, careerDesc, equipmentList]
+    .filter(Boolean)
+    .join(', ');
+
   return `
     A film still from a gritty, low-fi 1970s science fiction movie set in the GDW Traveller universe.
-    A portrait of a ${species}.
+    A portrait of a character.
+    Visual cues for the character: ${visualCues}.
     The aesthetic should be utilitarian and grounded, with technology and clothing that looks functional and well-used, not sleek or fantastical.
     The lighting is dramatic, with high contrast and a grainy, film-like texture. The colors are slightly faded and desaturated.
-    Here is a short description of the character: ${backstory}.
-    Crucially, there must be NO text, NO titles, NO logos, NO words, and NO watermarks on the image. It must be a clean film still of only the character.
+    CRITICAL: The image must contain absolutely no text, letters, titles, logos, or watermarks. Generate a clean image of the character only.
   `;
 };
 
