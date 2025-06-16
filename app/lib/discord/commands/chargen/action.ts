@@ -43,10 +43,10 @@ const generatePrompt = () => {
 };
 
 const generateImagePrompt = (character: Cepheus): string => {
-  const { name, backstory, speciesTraits } = character;
+  const { backstory, speciesTraits } = character;
   const species = speciesTraits?.join(', ') ?? 'human';
   return `
-    A film still from a 1970s science fiction movie. A portrait of ${name}, a ${species}.
+    A film still from a 1970s science fiction movie. A portrait of a ${species}.
     The lighting is dramatic, with high contrast and a grainy, film-like texture. The colors are slightly faded, with a warm, retro color palette.
     Here is a short description of the character: ${backstory}.
     No text, no titles, no words, no watermarks.
