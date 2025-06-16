@@ -2,12 +2,6 @@ import { getR2Client } from 'app/lib/r2/client';
 import { Upload } from '@aws-sdk/lib-storage';
 import { nanoid } from 'nanoid';
 
-if (!process.env.R2_BUCKET_NAME) {
-  throw new Error('Missing R2 bucket name');
-}
-
-const Bucket = process.env.R2_BUCKET_NAME;
-
 export const uploadToR2 = async ({
   body,
   contentType,
@@ -15,6 +9,11 @@ export const uploadToR2 = async ({
   body: Buffer | Uint8Array;
   contentType: string;
 }): Promise<string> => {
+  if (!process.env.R2_BUCKET_NAME) {
+    throw new Error('Missing R2 bucket name');
+  }
+
+  const Bucket = process.env.R2_BUCKET_NAME;
   const r2 = getR2Client();
   const key = nanoid();
 
