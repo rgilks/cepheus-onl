@@ -1,5 +1,5 @@
 import { getR2Client } from 'app/lib/r2/client';
-import { Upload } from '@aws-sdk/lib-storage';
+import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { nanoid } from 'nanoid';
 
 export const uploadToR2 = async ({
@@ -19,17 +19,15 @@ export const uploadToR2 = async ({
 
   try {
     console.log(`[R2] Uploading to ${Bucket}/${key}`);
-    const upload = new Upload({
-      client: r2,
-      params: {
-        Bucket,
-        Key: key,
-        Body: body,
-        ContentType: contentType,
-      },
+    const command = new PutObjectCommand({
+      Bucket,
+      Key: key,
+      Body: body,
+      ContentType: contentType,
     });
 
-    await upload.done();
+    await r2.send(command);
+
     console.log(`[R2] Successfully uploaded to ${Bucket}/${key}`);
     return key;
   } catch (error) {
