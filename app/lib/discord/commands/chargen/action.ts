@@ -46,8 +46,11 @@ const generateImagePrompt = (character: Cepheus): string => {
   const { backstory, speciesTraits } = character;
   const species = speciesTraits?.join(', ') ?? 'human';
   return `
-    A film still from a 1970s science fiction movie. A portrait of a ${species}.
-    The lighting is dramatic, with high contrast and a grainy, film-like texture. The colors are slightly faded, with a warm, retro color palette.
+    A detailed character portrait in the style of a classic 1970s/1980s science fiction book cover, set in the GDW Traveller universe's Third Imperium.
+    The character is a ${species}.
+    The style should be gritty, grounded, and utilitarian, reminiscent of artists like Chris Foss and Peter Elson.
+    The technology and clothing should look functional and well-used, not sleek or fantastical.
+    The lighting is naturalistic.
     Here is a short description of the character: ${backstory}.
     No text, no titles, no words, no watermarks.
   `;
