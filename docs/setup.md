@@ -45,13 +45,14 @@ The project uses Cloudflare D1 for its database and R2 for caching. You need to 
     npx wrangler d1 create cepheus-onl-db-preview
     ```
 
-3.  **Create R2 Bucket:** Create a bucket for the application's cache.
+3.  **Create R2 Buckets:** Create buckets for the application's cache and images.
 
     ```bash
     npx wrangler r2 bucket create cepheus-onl-cache
+    npx wrangler r2 bucket create cepheus-onl-images
     ```
 
-4.  **Update Configuration:** The previous commands will output configuration details, including IDs for your new resources. Open the `wrangler.jsonc` file and update it with the correct `database_id` for your production D1 database and `preview_database_id` for your preview database. The R2 `bucket_name` should already be correctly set to `cepheus-onl-cache`.
+4.  **Update Configuration:** The previous commands will output configuration details, including IDs for your new resources. Open the `wrangler.jsonc` file and update it with the correct `database_id` for your production D1 database and `preview_database_id` for your preview database. The R2 bucket names for `cepheus-onl-cache` and `cepheus-onl-images` should also be added to the `r2_buckets` section.
 
 ## Step 4: Configure Environment Variables
 
@@ -72,6 +73,19 @@ DISCORD_CLIENT_SECRET=
 DISCORD_APP_PUBLIC_KEY=
 DISCORD_BOT_TOKEN=
 DISCORD_CHANNEL_ID=
+
+# Google AI
+# Get this from Google AI Studio
+GOOGLE_AI_API_KEY=
+
+# Cloudflare R2
+# These are required for the application to upload images to R2.
+# Find your Account ID in the Cloudflare dashboard.
+R2_ACCOUNT_ID=
+# Create an R2 API token from the R2 page in the dashboard.
+R2_ACCESS_KEY_ID=
+R2_SECRET_ACCESS_KEY=
+R2_BUCKET_NAME=cepheus-onl-images
 ```
 
 - `NEXTAUTH_SECRET`: A secret key for NextAuth.js to sign tokens.
@@ -81,6 +95,13 @@ DISCORD_CHANNEL_ID=
 - `DISCORD_APP_PUBLIC_KEY`: The Public Key of your Discord application, for verifying interaction signatures.
 - `DISCORD_BOT_TOKEN`: The token for your Discord bot.
 - `DISCORD_CHANNEL_ID`: The ID of the Discord channel for the bot to send messages to.
+- `GOOGLE_AI_API_KEY`: Your API key for Google AI services.
+- `R2_ACCOUNT_ID`: Your Cloudflare account ID.
+- `R2_ACCESS_KEY_ID`: The access key for your R2 API token.
+- `R2_SECRET_ACCESS_KEY`: The secret key for your R2 API token.
+- `R2_BUCKET_NAME`: The name of the R2 bucket for storing images.
+
+**Note on Production Secrets:** For a production deployment, sensitive values like `DISCORD_CLIENT_SECRET`, `DISCORD_BOT_TOKEN`, `GOOGLE_AI_API_KEY`, and R2 credentials should not be stored in `wrangler.jsonc` or `.env` files. Instead, they should be set as secrets using the `wrangler secret put` command.
 
 ## Step 5: Run Database Migrations
 

@@ -26,5 +26,12 @@
       "binding": "NEXT_INC_CACHE_R2_BUCKET",
       "bucket_name": "cepheus-onl-cache",
     },
+    {
+      "binding": "R2_IMAGES_BUCKET",
+      "bucket_name": "cepheus-onl-images",
+    },
   ],
+  "vars": {
+    "R2_BUCKET_NAME": "cepheus-onl-images",
+  },
 }

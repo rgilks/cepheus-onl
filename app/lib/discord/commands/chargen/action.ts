@@ -1,6 +1,7 @@
 import { generateImage, generateTextCompletion } from 'app/lib/ai/google';
 import { CepheusSchema, type Cepheus, type CepheusCareer } from '../../../domain/types';
 import { archetypes } from './archetypes';
+import { uploadToR2 } from 'app/lib/r2/actions';
 
 const generatePrompt = () => {
   const randomArchetype = archetypes[Math.floor(Math.random() * archetypes.length)];
@@ -189,6 +190,14 @@ export const action = async (interaction: { application_id: string; token: strin
 
     await sendFollowup(formattedCharacter, image);
     console.log('[Chargen] Follow-up message sent successfully.');
+
+    try {
+      console.log('[Chargen] Uploading character image to R2...');
+      const key = await uploadToR2({ body: image, contentType: 'image/png' });
+      console.log(`[Chargen] Successfully uploaded character image to R2 with key: ${key}`);
+    } catch (uploadError) {
+      console.error('[Chargen] Failed to upload character image to R2:', uploadError);
+    }
   } catch (error) {
     console.error('Error generating character:', error);
     const errorMessage =
