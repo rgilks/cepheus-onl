@@ -150,6 +150,7 @@ export const action = async (interaction: { application_id: string; token: strin
     const payload = {
       content,
       embeds: image ? [{ image: { url: 'attachment://character.png' } }] : [],
+      attachments: image ? [{ id: 0, filename: 'character.png' }] : [],
     };
     formData.append('payload_json', JSON.stringify(payload));
 
