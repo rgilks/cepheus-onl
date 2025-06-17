@@ -67,13 +67,12 @@ const generateImagePrompt = (character: Cepheus, race: Race): string => {
     .join(', ');
 
   return `
-    A film still from a gritty, low-fi 1970s science fiction movie set in the GDW Traveller universe.
-    A portrait of a character.
-    The character's race is ${race}. The physical description of this race is: ${description}.
-    Visual cues for the character: ${visualCues}.
-    The aesthetic should be utilitarian and grounded, with technology and clothing that looks functional and well-used, not sleek or fantastical.
-    The lighting is dramatic, with high contrast and a grainy, film-like texture. The colors are slightly faded and desaturated.
-    CRITICAL: The image must contain absolutely no text, letters, titles, logos, or watermarks. Generate a clean image of the character only.
+    A cinematic, gritty, low-fi 1970s science fiction film still portrait of a Traveller RPG character.
+    ${visualCues}.
+    Race description: ${description}.
+    Utilitarian and grounded aesthetic, functional and well-used technology and clothing.
+    Dramatic, high-contrast lighting, grainy film texture, slightly faded and desaturated colors.
+    Negative prompt: no text, no letters, no titles, no logos, no watermarks, no HUD, no UI elements.
   `;
 };
 
