@@ -60,20 +60,18 @@ const generateImagePrompt = (character: Cepheus, race: Race): string => {
 
   const careerDesc = careers.map((c: CepheusCareer) => c.name).join(', ');
   const equipmentList =
-    equipment && equipment.length > 0 ? `equipped with ${equipment.join(', ')}` : '';
+    equipment && equipment.length > 0 ? `Equipped with ${equipment.join(', ')}.` : '';
 
-  const visualCues = [`a ${age}-year-old ${race}`, careerDesc, equipmentList]
-    .filter(Boolean)
-    .join(', ');
+  const prompt = `
+    Cinematic, photorealistic film still from a gritty, low-fi 1970s science fiction movie.
+    A portrait of a ${age}-year-old ${race} who is a ${careerDesc}. ${equipmentList}
+    The character's appearance is as follows: ${description}.
+    The image should be utilitarian and grounded, with functional, well-used technology and clothing, not sleek or fantastical.
+    The lighting is dramatic and high-contrast, with a grainy film texture. The colors are slightly faded and desaturated.
+    The image must be clean and contain absolutely no text, letters, titles, logos, watermarks, UI elements, or any other kind of typography.
+  `.trim();
 
-  return `
-    A cinematic, gritty, low-fi 1970s science fiction film still portrait of a Traveller RPG character.
-    ${visualCues}.
-    Race description: ${description}.
-    Utilitarian and grounded aesthetic, functional and well-used technology and clothing.
-    Dramatic, high-contrast lighting, grainy film texture, slightly faded and desaturated colors.
-    Negative prompt: no text, no letters, no titles, no logos, no watermarks, no HUD, no UI elements.
-  `;
+  return prompt;
 };
 
 const extractJsonFromAiResponse = (text: string): string | null => {
