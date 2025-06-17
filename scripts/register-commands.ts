@@ -1,7 +1,8 @@
 import 'dotenv/config';
-import { Routes } from 'discord-api-types/v10';
+import { Routes, ApplicationCommandOptionType } from 'discord-api-types/v10';
 import { command as equipmentCommand } from 'app/lib/discord/commands/equipment/command';
 import { command as worldCommand } from 'app/lib/discord/commands/traveller/command';
+import { Races } from '../app/lib/domain/races';
 
 const token = process.env.DISCORD_BOT_TOKEN;
 const clientId = process.env.DISCORD_CLIENT_ID;
@@ -14,6 +15,15 @@ const commands = [
   {
     name: 'chargen',
     description: 'Generates a random Cepheus Engine character.',
+    options: [
+      {
+        name: 'race',
+        description: 'The race of the character.',
+        type: ApplicationCommandOptionType.String,
+        required: true,
+        choices: Races.map(race => ({ name: race, value: race })),
+      },
+    ],
   },
   equipmentCommand,
   worldCommand,

@@ -47,9 +47,17 @@ When an interaction is received, the following occurs:
 
 This deferred response pattern is crucial for building a scalable and responsive bot on a serverless platform.
 
+### Slash Commands
+
+The following slash commands are available:
+
+- `/chargen race:<race>`: Generate a complete Cepheus Engine character for a chosen race.
+- `/equipment item:<item>`: Look up an item from the rulebook.
+- `/world`: Generate a random world.
+
 ### Registering Slash Commands
 
-A script is available at `scripts/register-commands.ts` to register global slash commands with Discord. You can run this script using `npm run register-commands`. It reads command definitions from `app/lib/discord/commands/**/command.ts` and sends them to the Discord API.
+A script is available at `scripts/register-commands.ts` to register global slash commands with Discord. You can run this script using `npm run register-commands`. It reads command definitions (including options and choices) from the project and sends them to the Discord API.
 
 ### Setting up the Interactions Endpoint in Discord
 

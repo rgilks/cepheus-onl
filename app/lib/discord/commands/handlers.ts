@@ -28,7 +28,7 @@ type CommandHandler = (
 ) => Promise<NextResponse> | NextResponse;
 
 const chargenHandler: CommandHandler = (interaction, { ctx }) => {
-  ctx.waitUntil(chargenAction(interaction as APIApplicationCommandInteraction));
+  ctx.waitUntil(chargenAction(interaction as APIChatInputApplicationCommandInteraction));
   return NextResponse.json({
     type: InteractionResponseType.DeferredChannelMessageWithSource,
   });

@@ -4,15 +4,23 @@ import { CepheusSchema, type Cepheus, type CepheusCareer } from '../../../domain
 import { archetypes } from './archetypes';
 import { nanoid } from 'nanoid';
 import { saveGeneratedCharacter } from 'lib/db/actions';
+import {
+  ApplicationCommandOptionType,
+  type APIApplicationCommandInteractionDataStringOption,
+  type APIChatInputApplicationCommandInteraction,
+  type APIApplicationCommandInteractionDataOption,
+} from 'discord-api-types/v10';
+import { Race } from 'app/lib/domain/races';
 
-const generatePrompt = () => {
+const generatePrompt = (race: Race) => {
   const randomArchetype = archetypes[Math.floor(Math.random() * archetypes.length)];
 
   return `
     Please generate a random character for the Cepheus Engine RPG, based on the following concept:
     **${randomArchetype}**
+    The character's race is **${race}**.
 
-    The character should be in the standard Cepheus Engine format and include a short, engaging backstory that reflects the provided concept.
+    The character should be in the standard Cepheus Engine format and include a short, engaging backstory that reflects the provided concept and race.
     The output must be a JSON object that conforms to the following Zod schema.
     IMPORTANT: The output MUST be a valid JSON object. Ensure that any double quotes within string values are properly escaped with a backslash (e.g., "This is a \\"quoted\\" string.").
 
@@ -142,8 +150,8 @@ const parseAndValidateCharacter = (jsonString: string): Cepheus => {
   }
 };
 
-const generateCharacterData = async (): Promise<Cepheus> => {
-  const prompt = generatePrompt();
+const generateCharacterData = async (race: Race): Promise<Cepheus> => {
+  const prompt = generatePrompt(race);
   const aiResponseText = await generateTextCompletion(prompt);
   const jsonString = extractJsonFromAiResponse(aiResponseText);
 
@@ -155,7 +163,7 @@ const generateCharacterData = async (): Promise<Cepheus> => {
   return parseAndValidateCharacter(jsonString);
 };
 
-export const action = async (interaction: { application_id: string; token: string }) => {
+export const action = async (interaction: APIChatInputApplicationCommandInteraction) => {
   const followupUrl = `https://discord.com/api/v10/webhooks/${interaction.application_id}/${interaction.token}/messages/@original`;
 
   const sendFollowup = async (content: string, image?: Uint8Array) => {
@@ -186,8 +194,18 @@ export const action = async (interaction: { application_id: string; token: strin
   };
 
   try {
-    console.log('[Chargen] Starting character generation...');
-    const character = await generateCharacterData();
+    const raceOption = interaction.data.options?.find(
+      (option: APIApplicationCommandInteractionDataOption) =>
+        option.name === 'race' && option.type === ApplicationCommandOptionType.String
+    ) as APIApplicationCommandInteractionDataStringOption;
+
+    if (!raceOption) {
+      throw new Error('Race not provided.');
+    }
+    const race = raceOption.value as Race;
+
+    console.log(`[Chargen] Starting character generation for race: ${race}...`);
+    const character = await generateCharacterData(race);
     console.log('[Chargen] Character data generated successfully.');
 
     const formattedCharacter = formatCharacter(character);

@@ -20,9 +20,6 @@ The goal is to create a fully-featured, scalable, and cost-effective application
 ## Key Features
 
 - **Discord Bot**: Interact with the game directly from Discord using slash commands.
-  - Asynchronous command handling for a responsive experience.
-  - `/chargen`: Generate a complete Cepheus Engine character.
-  - `/equipment`: Browse the SRD equipment catalog.
 - **Web UI**: A full-featured web interface for game management (in development).
 - **Authentication**: Secure login with your Discord account.
 - **Data Model**: A comprehensive database schema to manage games, characters, worlds, and more.
