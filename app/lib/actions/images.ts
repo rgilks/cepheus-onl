@@ -1,22 +1,20 @@
 'use server';
 
+import { getCloudflareContext } from '@opennextjs/cloudflare';
 import { generateImage } from 'app/lib/ai/google';
-import { R2Client } from 'app/lib/r2';
-import { PutObjectCommand } from '@aws-sdk/client-s3';
 
 export const generateAndUploadImage = async (prompt: string): Promise<string> => {
   try {
     const imageBytes = await generateImage(prompt);
     const fileKey = `generated-images/${Date.now()}.png`;
 
-    await R2Client.send(
-      new PutObjectCommand({
-        Bucket: process.env.R2_BUCKET_NAME,
-        Key: fileKey,
-        Body: imageBytes,
-        ContentType: 'image/png',
-      })
-    );
+    const { env } = getCloudflareContext();
+
+    await env.R2_IMAGES_BUCKET.put(fileKey, imageBytes, {
+      httpMetadata: {
+        contentType: 'image/png',
+      },
+    });
 
     console.log(`Image uploaded to R2 as ${fileKey}`);
     return fileKey;

@@ -1,8 +1,7 @@
+import { getCloudflareContext } from '@opennextjs/cloudflare';
 import { generateImage, generateTextCompletion } from 'app/lib/ai/google';
 import { CepheusSchema, type Cepheus, type CepheusCareer } from '../../../domain/types';
 import { archetypes } from './archetypes';
-import { R2Client } from 'app/lib/r2';
-import { PutObjectCommand } from '@aws-sdk/client-s3';
 import { nanoid } from 'nanoid';
 import { saveGeneratedCharacter } from 'lib/db/actions';
 
@@ -208,14 +207,10 @@ export const action = async (interaction: { application_id: string; token: strin
       try {
         console.log('[Chargen] Uploading character image to R2...');
         const key = nanoid();
-        await R2Client.send(
-          new PutObjectCommand({
-            Bucket: process.env.R2_BUCKET_NAME,
-            Key: key,
-            Body: image,
-            ContentType: 'image/png',
-          })
-        );
+        const { env } = getCloudflareContext();
+        await env.R2_IMAGES_BUCKET.put(key, image, {
+          httpMetadata: { contentType: 'image/png' },
+        });
         console.log(`[Chargen] Successfully uploaded character image to R2 with key: ${key}`);
         await saveGeneratedCharacter(character, key);
       } catch (uploadError) {
