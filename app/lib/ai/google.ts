@@ -42,7 +42,7 @@ export const generateImage = async (prompt: string): Promise<Uint8Array> => {
       prompt,
       config: {
         numberOfImages: 1,
-        aspectRatio: '16:9',
+        aspectRatio: '1:1',
       },
     });
 

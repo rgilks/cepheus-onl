@@ -18,10 +18,12 @@ export const travellerWorldSchema = z.object({
   Sector: z.string(),
 });
 
-export type TravellerWorld = z.infer<typeof travellerWorldSchema>;
-
 export const jumpWorldsResponseSchema = z.object({
   Worlds: z.array(travellerWorldSchema),
 });
 
-export type JumpWorldsResponse = z.infer<typeof jumpWorldsResponseSchema>;
+export const sectorWorldsResponseSchema = z.object({
+  Worlds: z.array(travellerWorldSchema),
+});
+
+export type TravellerWorld = z.infer<typeof travellerWorldSchema>;

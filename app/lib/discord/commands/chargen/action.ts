@@ -12,6 +12,8 @@ import {
 } from 'discord-api-types/v10';
 import { Race } from 'app/lib/domain/races';
 import { raceDescriptions } from 'app/lib/domain/race-descriptions';
+import { travellerMapClient } from 'app/lib/travellermap/client';
+import { TravellerWorld } from 'app/lib/domain/types/travellermap';
 
 const generatePrompt = (race: Race) => {
   const randomArchetype = archetypes[Math.floor(Math.random() * archetypes.length)];
@@ -93,7 +95,7 @@ const extractJsonFromAiResponse = (text: string): string | null => {
   return null;
 };
 
-const formatCharacter = (character: Cepheus): string => {
+const formatCharacter = (character: Cepheus, location: TravellerWorld | null): string => {
   const { name, upp, age, careers, credits, skills, speciesTraits, equipment, backstory } =
     character;
   const careerString = careers.map((c: CepheusCareer) => `${c.name} (${c.terms} terms)`).join(', ');
@@ -118,6 +120,14 @@ const formatCharacter = (character: Cepheus): string => {
 
   if (backstory) {
     parts.push(`\n${backstory}`);
+  }
+
+  if (location) {
+    const travellerMapLink = `https://travellermap.com/map?sector=${location.Sector}&hex=${location.Hex}`;
+    parts.push(
+      `\nCurrent Location: ${location.Name} (${location.UWP}) - ${location.Sector} ${location.Hex}`
+    );
+    parts.push(travellerMapLink);
   }
 
   return `\`\`\`\n${parts.join('\n')}\n\`\`\``;
@@ -207,7 +217,11 @@ export const action = async (interaction: APIChatInputApplicationCommandInteract
     const character = await generateCharacterData(race);
     console.log('[Chargen] Character data generated successfully.');
 
-    const formattedCharacter = formatCharacter(character);
+    const spinwardMarchesWorlds = await travellerMapClient.getSectorWorlds('Spinward Marches');
+    const location =
+      spinwardMarchesWorlds[Math.floor(Math.random() * spinwardMarchesWorlds.length)] ?? null;
+
+    const formattedCharacter = formatCharacter(character, location);
 
     if (process.env.IMAGE_GENERATION_ENABLED === 'true') {
       const imagePrompt = generateImagePrompt(character, race);

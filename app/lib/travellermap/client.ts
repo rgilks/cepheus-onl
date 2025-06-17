@@ -1,4 +1,8 @@
-import { jumpWorldsResponseSchema, type TravellerWorld } from 'app/lib/domain/types/travellermap';
+import {
+  jumpWorldsResponseSchema,
+  sectorWorldsResponseSchema,
+  type TravellerWorld,
+} from 'app/lib/domain/types/travellermap';
 
 const TRAVELLERMAP_API_URL = 'https://travellermap.com/api';
 
@@ -16,6 +20,22 @@ export class TravellerMapClient {
     }
 
     return response.json() as Promise<T>;
+  }
+
+  async getSectorWorlds(sector: string): Promise<TravellerWorld[]> {
+    const params = new URLSearchParams({
+      sector,
+      type: 'SecondSurvey',
+    });
+    const data = await this.fetch<unknown>('sector', params);
+    const parsed = sectorWorldsResponseSchema.safeParse(data);
+
+    if (!parsed.success) {
+      console.error('Failed to parse Traveller Map API response:', parsed.error);
+      return [];
+    }
+
+    return parsed.data.Worlds;
   }
 
   async getWorld(sector: string, hex: string): Promise<TravellerWorld | null> {
