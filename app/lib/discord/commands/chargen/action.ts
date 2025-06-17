@@ -11,6 +11,7 @@ import {
   type APIApplicationCommandInteractionDataOption,
 } from 'discord-api-types/v10';
 import { Race } from 'app/lib/domain/races';
+import { raceDescriptions } from 'app/lib/domain/race-descriptions';
 
 const generatePrompt = (race: Race) => {
   const randomArchetype = archetypes[Math.floor(Math.random() * archetypes.length)];
@@ -53,21 +54,22 @@ const generatePrompt = (race: Race) => {
   `;
 };
 
-const generateImagePrompt = (character: Cepheus): string => {
-  const { age, careers, equipment, speciesTraits } = character;
-  const species = speciesTraits?.join(', ') ?? 'human';
+const generateImagePrompt = (character: Cepheus, race: Race): string => {
+  const { age, careers, equipment } = character;
+  const description = raceDescriptions[race];
 
   const careerDesc = careers.map((c: CepheusCareer) => c.name).join(', ');
   const equipmentList =
     equipment && equipment.length > 0 ? `equipped with ${equipment.join(', ')}` : '';
 
-  const visualCues = [`a ${age}-year-old ${species}`, careerDesc, equipmentList]
+  const visualCues = [`a ${age}-year-old ${race}`, careerDesc, equipmentList]
     .filter(Boolean)
     .join(', ');
 
   return `
     A film still from a gritty, low-fi 1970s science fiction movie set in the GDW Traveller universe.
     A portrait of a character.
+    The character's race is ${race}. The physical description of this race is: ${description}.
     Visual cues for the character: ${visualCues}.
     The aesthetic should be utilitarian and grounded, with technology and clothing that looks functional and well-used, not sleek or fantastical.
     The lighting is dramatic, with high contrast and a grainy, film-like texture. The colors are slightly faded and desaturated.
@@ -211,7 +213,7 @@ export const action = async (interaction: APIChatInputApplicationCommandInteract
     const formattedCharacter = formatCharacter(character);
 
     if (process.env.IMAGE_GENERATION_ENABLED === 'true') {
-      const imagePrompt = generateImagePrompt(character);
+      const imagePrompt = generateImagePrompt(character, race);
       const image = await generateImage(imagePrompt);
 
       console.log(`[Chargen] Received image data. Type: ${typeof image}, Length: ${image.length}`);
