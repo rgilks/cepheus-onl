@@ -25,11 +25,12 @@ export const RaceSchema = z.enum([
   'Shriekers (minor)',
   'Tentrassi (minor)',
   'Vegan (minor)',
+  'Droyne',
 ]);
 
 export type Race = z.infer<typeof RaceSchema>;
 
-export const Races = RaceSchema.options;
+export const Races = RaceSchema.enum;
 
 export const CharacteristicsSchema = z.object({
   str: z.number().int().default(0),
@@ -98,6 +99,21 @@ export const CharacteristicChangeSchema = z.object({
   modifier: z.number().int(),
 });
 export type CharacteristicChange = z.infer<typeof CharacteristicChangeSchema>;
+
+export const CharacterInPlaySchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  race: z.string(),
+  description: z.string(),
+  story: z.string(),
+  stats: z.any(),
+  skills: z.any(),
+  equipment: z.any(),
+  image: z.string().optional().nullable(),
+  location: z.any(),
+  owner: z.string().optional().nullable(),
+});
+export type CharacterInPlay = z.infer<typeof CharacterInPlaySchema>;
 
 export const CharacterSchema = z.object({
   id: z.string(),

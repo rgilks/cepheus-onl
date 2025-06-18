@@ -1,4 +1,4 @@
-import { generateImage, generateTextCompletion } from '@/app/lib/ai/google';
+import { generateTextCompletion } from '@/app/lib/ai/google';
 import {
   type AIGeneratedCharacter,
   AIGeneratedCharacterSchema,
@@ -9,9 +9,7 @@ import { Race } from '@/app/lib/domain/types/character';
 import { raceDescriptions } from '@/app/lib/domain/race-descriptions';
 import { travellerMapClient } from '@/app/lib/travellermap/client';
 import { TravellerWorld } from '@/app/lib/domain/types/travellermap';
-import { saveImage } from '@/app/lib/actions/images';
 import { saveGeneratedCharacter } from '@/lib/db/actions';
-import { z } from 'zod';
 
 export const generatePrompt = (race: Race) => {
   const randomArchetype = archetypes[Math.floor(Math.random() * archetypes.length)];
@@ -265,33 +263,37 @@ export const generateCharacterData = async (race: Race): Promise<AIGeneratedChar
     throw new Error('Failed to extract JSON from AI response.');
   }
 
-  return parseAndValidateCharacter(json);
+  const validatedCharacter = parseAndValidateCharacter(json);
+  return validatedCharacter;
 };
 
-export const generateAndSaveCharacter = async (race: Race) => {
-  const characterData = await generateCharacterData(race);
-  const imagePrompt = generateImagePrompt(characterData, race);
-  const image = await generateImage(imagePrompt);
+export const generateAndSaveCharacter = async (race: Race, ownerId?: string) => {
+  try {
+    const characterData = await generateCharacterData(race);
 
-  const location = await pickRandomWorld();
-  if (!location) {
-    throw new Error('Could not find a suitable starting location.');
+    // Pick a random world for the character's location
+    const location = await pickRandomWorld();
+    if (!location) {
+      throw new Error('Could not fetch a location from Traveller Map API.');
+    }
+
+    // Generate an image prompt for the character
+    const imagePrompt = generateImagePrompt(characterData, race);
+
+    // Save the character and the image prompt
+    const savedCharacter = await saveGeneratedCharacter({
+      ...characterData,
+      image: imagePrompt,
+      location: location,
+      race: race,
+      owner: ownerId,
+    });
+
+    return savedCharacter;
+  } catch (error) {
+    console.error('Error in generateAndSaveCharacter:', error);
+    return null;
   }
-
-  const r2ImageKey = image ? await saveImage(image) : null;
-  const locationImage = await generateImage(generatePlanetImagePrompt(location));
-  const locationImageKey = locationImage ? await saveImage(locationImage) : null;
-
-  const characterWithImage = { ...characterData, image: imagePrompt };
-  const validationResult = AIGeneratedCharacterSchema.extend({
-    image: z.string().optional(),
-  }).safeParse(characterWithImage);
-
-  if (!validationResult.success) {
-    throw new Error('Failed to validate character with image.');
-  }
-
-  return saveGeneratedCharacter(validationResult.data, r2ImageKey, location, locationImageKey);
 };
 
 export async function pickRandomWorld(): Promise<TravellerWorld | null> {

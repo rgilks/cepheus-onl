@@ -31,8 +31,8 @@ export const raceDescriptions: Record<Race, string> = {
   'Llellewyloly (Dandelions) (minor)': 'Large, intelligent, plant-like sophonts.',
   'Shriekers (minor)':
     'Intelligent hexapods about 1 meter at the shoulder. They communicate at a frequency at the high end of human hearing.',
-  'Tentrassi (minor)':
-    'A nomadic race that wanders space in jump fleets. Physical description is not well-documented.',
-  'Vegan (minor)':
-    'A turret-shaped, sessile, photosynthetic species. They are covered in a tough, organic armor and have manipulator tentacles.',
+  'Tentrassi (minor)': 'Amphibious beings from a water world.',
+  'Vegan (minor)': 'A sturdy, robust humanoid race from a high-gravity world.',
+  Droyne:
+    'A winged, reptilian race with six limbs. They have a small, sleek body with leathery wings. They are known for their enigmatic nature and ancient heritage.',
 };

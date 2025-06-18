@@ -243,21 +243,15 @@ export const generatedCharacters = sqliteTable('generated_characters', {
     .primaryKey()
     .$defaultFn(() => nanoid()),
   name: text('name').notNull(),
-  upp: text('upp').notNull(),
-  age: integer('age').notNull(),
-  careers: text('careers', { mode: 'json' }).notNull(),
-  credits: integer('credits').notNull(),
+  race: text('race').notNull(),
+  description: text('description').notNull(),
+  story: text('story').notNull(),
+  stats: text('stats', { mode: 'json' }).notNull(),
   skills: text('skills', { mode: 'json' }).notNull(),
-  speciesTraits: text('speciesTraits', { mode: 'json' }),
-  equipment: text('equipment', { mode: 'json' }),
-  backstory: text('backstory'),
+  equipment: text('equipment', { mode: 'json' }).notNull(),
   image: text('image'),
-  r2_image_key: text('r2_image_key'),
-  location_image_key: text('location_image_key'),
-  location: text('location', { mode: 'json' }),
-  createdAt: integer('createdAt', { mode: 'timestamp_ms' })
-    .notNull()
-    .$defaultFn(() => new Date()),
+  location: text('location', { mode: 'json' }).notNull(),
+  owner: text('owner'),
 });
 
 export const pieces = sqliteTable('pieces', {
