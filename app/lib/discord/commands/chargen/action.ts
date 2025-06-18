@@ -45,8 +45,8 @@ const generatePrompt = (race: Race) => {
           "level": "number"
         }
       ],
-      "speciesTraits": "string[] (A list of traits for non-human species. Omit or set to null if not applicable.)",
-      "equipment": "string[] (A list of significant equipment the character owns. Omit or set to null if not applicable.)",
+      "speciesTraits": "string[] | null (A list of traits for non-human species. Omit, set to null or an empty array if not applicable.)",
+      "equipment": "string[] | null (A list of significant equipment the character owns. Omit, set to null or an empty array if not applicable.)",
       "backstory": "string (A short, engaging backstory for the character, suitable for a Cepheus Engine RPG setting.)"
     }
     \`\`\`

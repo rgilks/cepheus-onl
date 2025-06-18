@@ -33,9 +33,9 @@ export const CepheusSchema = z.object({
   homeworld: z.string(),
   careers: z.array(CepheusCareerSchema),
   skills: z.array(CepheusSkillSchema),
-  equipment: z.array(z.string()),
+  equipment: z.array(z.string()).nullable().optional(),
   credits: z.number().int(),
-  speciesTraits: z.array(z.string()).optional(),
+  speciesTraits: z.array(z.string()).nullable().optional(),
   backstory: z.string().optional(),
 });
 export type Cepheus = z.infer<typeof CepheusSchema>;
