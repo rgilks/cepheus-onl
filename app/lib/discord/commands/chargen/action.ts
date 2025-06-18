@@ -343,12 +343,12 @@ export const action = async (interaction: APIChatInputApplicationCommandInteract
 
     const [characterData, location] = await Promise.all([characterDataPromise, locationPromise]);
 
-    const imagePrompt = generateImagePrompt(characterData, race);
-    const imagePromise = generateImage(imagePrompt);
+    const image =
+      process.env.IMAGE_GENERATION_ENABLED === 'true'
+        ? await generateImage(generateImagePrompt(characterData, race))
+        : null;
 
     const characterContent = formatCharacter(characterData);
-
-    const image = await imagePromise;
 
     const characterPayload = {
       content: characterContent,
@@ -356,7 +356,7 @@ export const action = async (interaction: APIChatInputApplicationCommandInteract
       attachments: image ? [{ id: 0, filename: 'character.png' }] : [],
     };
 
-    await sendFollowup(characterPayload, image);
+    await sendFollowup(characterPayload, image ?? undefined);
 
     if (location) {
       const locationEmbed = formatLocation(location);
