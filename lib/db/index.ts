@@ -4,21 +4,25 @@ import { drizzle as drizzleSqlite, BetterSQLite3Database } from 'drizzle-orm/bet
 import { drizzle, DrizzleD1Database } from 'drizzle-orm/d1';
 import * as schema from './schema';
 
-let db: DrizzleD1Database<typeof schema> | BetterSQLite3Database<typeof schema>;
+let db: DrizzleD1Database<typeof schema> | BetterSQLite3Database<typeof schema> | null = null;
 
-export const getDb = () => {
+export const getDb = async () => {
   if (!db) {
     if (process.env.NODE_ENV === 'production') {
-      const { env } = getCloudflareContext();
-      if (!env.DB) {
+      const {
+        env: { DB },
+      } = await getCloudflareContext({
+        async: true,
+      });
+      if (!DB) {
         throw new Error('DB environment variable is not set.');
       }
-      db = drizzle(env.DB, { schema });
+      db = drizzle(DB, { schema });
     } else {
       const sqlite = new Database('local.db');
       db = drizzleSqlite(sqlite, { schema });
     }
   }
 
-  return db;
+  return db as DrizzleD1Database<typeof schema> | BetterSQLite3Database<typeof schema>;
 };

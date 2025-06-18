@@ -8,19 +8,22 @@ import { Adapter } from 'next-auth/adapters';
 export const {
   handlers: { GET, POST },
   auth,
-} = NextAuth({
-  secret: process.env.NEXTAUTH_SECRET,
-  adapter: DrizzleAdapter(getDb(), {
-    usersTable: schema.users,
-    accountsTable: schema.accounts,
-    sessionsTable: schema.sessions,
-    verificationTokensTable: schema.verificationTokens,
-  }) as Adapter,
-  providers: [
-    Discord({
-      clientId: process.env.DISCORD_CLIENT_ID,
-      clientSecret: process.env.DISCORD_CLIENT_SECRET,
-    }),
-  ],
-  trustHost: true,
+} = NextAuth(async () => {
+  const db = await getDb();
+  return {
+    secret: process.env.NEXTAUTH_SECRET,
+    adapter: DrizzleAdapter(db, {
+      usersTable: schema.users,
+      accountsTable: schema.accounts,
+      sessionsTable: schema.sessions,
+      verificationTokensTable: schema.verificationTokens,
+    }) as Adapter,
+    providers: [
+      Discord({
+        clientId: process.env.DISCORD_CLIENT_ID,
+        clientSecret: process.env.DISCORD_CLIENT_SECRET,
+      }),
+    ],
+    trustHost: true,
+  };
 });

@@ -6,7 +6,7 @@ export const saveGeneratedCharacter = async (
   character: Cepheus,
   r2ImageKey: string | null
 ): Promise<void> => {
-  const db = getDb();
+  const db = await getDb();
   try {
     console.log('[DB] Saving generated character...');
     await db.insert(generatedCharacters).values({
