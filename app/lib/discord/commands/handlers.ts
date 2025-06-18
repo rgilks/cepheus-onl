@@ -4,6 +4,10 @@ import {
   handleComponentInteraction as equipmentComponentInteraction,
 } from 'app/lib/discord/commands/equipment/action';
 import {
+  action as newgameAction,
+  handleComponentInteraction as newgameComponentInteraction,
+} from 'app/lib/discord/commands/newgame/action';
+import {
   InteractionResponseType,
   InteractionType,
   type APIApplicationCommandInteraction,
@@ -61,8 +65,29 @@ const worldHandler: CommandHandler = (interaction, { ctx }) => {
   return NextResponse.json({ error: 'Invalid interaction type' }, { status: 400 });
 };
 
+const newgameHandler: CommandHandler = async (interaction, { ctx }) => {
+  if (interaction.type === InteractionType.MessageComponent) {
+    ctx.waitUntil(newgameComponentInteraction(interaction as APIMessageComponentInteraction));
+    return NextResponse.json({
+      type: InteractionResponseType.DeferredChannelMessageWithSource,
+      data: {
+        flags: MessageFlags.Ephemeral,
+      },
+    });
+  }
+
+  ctx.waitUntil(newgameAction(interaction as APIChatInputApplicationCommandInteraction));
+  return NextResponse.json({
+    type: InteractionResponseType.DeferredChannelMessageWithSource,
+    data: {
+      flags: MessageFlags.Ephemeral,
+    },
+  });
+};
+
 export const commandHandlers: Record<string, CommandHandler> = {
   chargen: chargenHandler,
   equipment: equipmentHandler,
   world: worldHandler,
+  newgame: newgameHandler,
 };

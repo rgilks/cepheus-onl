@@ -251,6 +251,7 @@ export const generatedCharacters = sqliteTable('generated_characters', {
   speciesTraits: text('speciesTraits', { mode: 'json' }),
   equipment: text('equipment', { mode: 'json' }),
   backstory: text('backstory'),
+  image: text('image'),
   r2_image_key: text('r2_image_key'),
   location_image_key: text('location_image_key'),
   location: text('location', { mode: 'json' }),
@@ -443,5 +444,30 @@ export const presencesRelations = relations(presences, ({ one }) => ({
   user: one(users, {
     fields: [presences.owner],
     references: [users.id],
+  }),
+}));
+
+export const discordGames = sqliteTable('discord_games', {
+  id: text('id')
+    .primaryKey()
+    .$defaultFn(() => nanoid()),
+  discordUserId: text('discord_user_id').notNull().unique(),
+  characterId: text('character_id')
+    .notNull()
+    .references(() => generatedCharacters.id),
+  channelId: text('channel_id').notNull(),
+  isActive: integer('is_active', { mode: 'boolean' }).default(true).notNull(),
+  createdAt: integer('createdAt', { mode: 'timestamp_ms' })
+    .notNull()
+    .$defaultFn(() => new Date()),
+  updatedAt: integer('updatedAt', { mode: 'timestamp_ms' })
+    .notNull()
+    .$defaultFn(() => new Date()),
+});
+
+export const discordGameRelations = relations(discordGames, ({ one }) => ({
+  character: one(generatedCharacters, {
+    fields: [discordGames.characterId],
+    references: [generatedCharacters.id],
   }),
 }));

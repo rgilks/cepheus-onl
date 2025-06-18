@@ -23,6 +23,16 @@ export class TravellerMapClient {
     return response.text();
   }
 
+  async getRandomSector(): Promise<{ Name: string } | null> {
+    const response = await fetch('https://travellermap.com/api/sectors');
+    if (!response.ok) {
+      return null;
+    }
+    const data = await response.json();
+    const sectors = data.Sectors.filter((s: { Tags: string[] }) => s.Tags.includes('Official'));
+    return sectors[Math.floor(Math.random() * sectors.length)];
+  }
+
   async getSectorWorlds(sector: string): Promise<TravellerWorld[]> {
     const params = new URLSearchParams({
       sector,
@@ -83,7 +93,7 @@ export class TravellerMapClient {
     return parsed.data.Worlds;
   }
 
-  async getWorld(sector: string, hex: string): Promise<TravellerWorld | null> {
+  async getWorldDetails(sector: string, hex: string): Promise<TravellerWorld | null> {
     const params = new URLSearchParams({
       sector,
       hex,

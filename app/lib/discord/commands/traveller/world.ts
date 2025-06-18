@@ -41,7 +41,7 @@ export const action = async (interaction: APIChatInputApplicationCommandInteract
   const hex = hexOption.value;
 
   try {
-    const world = await travellerMapClient.getWorld(sector, hex);
+    const world = await travellerMapClient.getWorldDetails(sector, hex);
 
     if (!world) {
       await discord.createFollowupMessage(interaction.application_id, interaction.token, {
