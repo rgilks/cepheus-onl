@@ -1,0 +1,1 @@
+ALTER TABLE `generated_characters` ADD `location_image_key` text;

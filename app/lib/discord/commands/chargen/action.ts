@@ -1,4 +1,3 @@
-import { getCloudflareContext } from '@opennextjs/cloudflare';
 import { generateImage, generateTextCompletion } from '@/app/lib/ai/google';
 import {
   type AIGeneratedCharacter,
@@ -6,7 +5,6 @@ import {
   type AICareer,
 } from '@/app/lib/domain/types/cepheus';
 import { archetypes } from './archetypes';
-import { nanoid } from 'nanoid';
 import { saveGeneratedCharacter } from '@/lib/db/actions';
 import {
   type APIApplicationCommandInteractionDataStringOption,
@@ -16,6 +14,7 @@ import { Race } from '@/app/lib/domain/types/character';
 import { raceDescriptions } from '@/app/lib/domain/race-descriptions';
 import { travellerMapClient } from '@/app/lib/travellermap/client';
 import { TravellerWorld } from '@/app/lib/domain/types/travellermap';
+import { saveImage } from '@/app/lib/actions/images';
 
 const generatePrompt = (race: Race) => {
   const randomArchetype = archetypes[Math.floor(Math.random() * archetypes.length)];
@@ -343,28 +342,30 @@ export const action = async (interaction: APIChatInputApplicationCommandInteract
 
     const [characterData, location] = await Promise.all([characterDataPromise, locationPromise]);
 
-    const image =
-      process.env.IMAGE_GENERATION_ENABLED === 'true'
-        ? await generateImage(generateImagePrompt(characterData, race))
-        : null;
+    let characterImage: Uint8Array | null = null;
+    let planetImage: Uint8Array | null = null;
+
+    if (process.env.IMAGE_GENERATION_ENABLED === 'true') {
+      const [charImg, planImg] = await Promise.all([
+        generateImage(generateImagePrompt(characterData, race)),
+        location ? generateImage(generatePlanetImagePrompt(location)) : Promise.resolve(null),
+      ]);
+      characterImage = charImg;
+      planetImage = planImg;
+    }
 
     const characterContent = formatCharacter(characterData);
 
     const characterPayload = {
       content: characterContent,
-      embeds: image ? [{ image: { url: 'attachment://character.png' } }] : [],
-      attachments: image ? [{ id: 0, filename: 'character.png' }] : [],
+      embeds: characterImage ? [{ image: { url: 'attachment://character.png' } }] : [],
+      attachments: characterImage ? [{ id: 0, filename: 'character.png' }] : [],
     };
 
-    await sendFollowup(characterPayload, image ?? undefined);
+    await sendFollowup(characterPayload, characterImage ?? undefined);
 
     if (location) {
       const locationEmbed = formatLocation(location);
-
-      const planetImage =
-        process.env.IMAGE_GENERATION_ENABLED === 'true'
-          ? await generateImage(generatePlanetImagePrompt(location))
-          : null;
 
       const embeds: (ReturnType<typeof formatLocation> & { image?: { url: string } })[] = [
         locationEmbed,
@@ -382,18 +383,26 @@ export const action = async (interaction: APIChatInputApplicationCommandInteract
       await sendChannelMessage(interaction.channel_id, payload, planetImage ?? undefined);
     }
 
-    if (process.env.IMAGE_GENERATION_ENABLED === 'true' && image) {
+    let characterImageKey: string | null = null;
+    let planetImageKey: string | null = null;
+
+    if (characterImage) {
       try {
-        const { key } = await getCloudflareContext().env.R2_IMAGES_BUCKET.put(nanoid(), image);
-        await saveGeneratedCharacter(characterData, key, location);
-      } catch (r2Error) {
-        console.error('[Chargen] Failed to upload image to R2:', r2Error);
-        // continue without saving if R2 fails
-        await saveGeneratedCharacter(characterData, null, location);
+        characterImageKey = await saveImage(characterImage);
+      } catch (e) {
+        console.error('[Chargen] Failed to save character image:', e);
       }
-    } else {
-      await saveGeneratedCharacter(characterData, null, location);
     }
+
+    if (planetImage) {
+      try {
+        planetImageKey = await saveImage(planetImage);
+      } catch (e) {
+        console.error('[Chargen] Failed to save planet image:', e);
+      }
+    }
+
+    await saveGeneratedCharacter(characterData, characterImageKey, location, planetImageKey);
   } catch (error) {
     console.error('Error in chargen action:', error);
     await sendError(
