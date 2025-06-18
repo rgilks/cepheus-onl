@@ -97,7 +97,7 @@ R2_BUCKET_NAME=cepheus-onl-images
 - `DISCORD_BOT_TOKEN`: The token for your Discord bot.
 - `DISCORD_CHANNEL_ID`: The ID of the Discord channel for the bot to send messages to.
 - `GOOGLE_AI_API_KEY`: Your API key for Google AI services.
-- `IMAGE_GENERATION_ENABLED`: Set to `true` to enable AI image generation for characters.
+- `IMAGE_GENERATION_ENABLED`: Set to `true` to enable AI image generation for characters and planets.
 - `R2_ACCOUNT_ID`: Your Cloudflare account ID.
 - `R2_ACCESS_KEY_ID`: The access key for your R2 API token.
 - `R2_SECRET_ACCESS_KEY`: The secret key for your R2 API token.
