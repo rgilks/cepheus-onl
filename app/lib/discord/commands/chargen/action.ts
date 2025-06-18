@@ -9,10 +9,8 @@ import { archetypes } from './archetypes';
 import { nanoid } from 'nanoid';
 import { saveGeneratedCharacter } from '@/lib/db/actions';
 import {
-  ApplicationCommandOptionType,
   type APIApplicationCommandInteractionDataStringOption,
   type APIChatInputApplicationCommandInteraction,
-  type APIApplicationCommandInteractionDataOption,
 } from 'discord-api-types/v10';
 import { Race } from '@/app/lib/domain/types/character';
 import { raceDescriptions } from '@/app/lib/domain/race-descriptions';
@@ -33,25 +31,25 @@ const generatePrompt = (race: Race) => {
 
     \`\`\`json
     {
-      "name": "string (A cool and evocative name suitable for the Traveller RPG setting. Avoid common or generic names like 'Vance'.)",
-      "upp": "string (The Universal Personality Profile of the character, 6 characters, hex values 0-F)",
-      "age": "number (The age of the character in years.)",
+      "name": "string",
+      "upp": "string",
+      "age": "number",
       "careers": [
         {
-          "name": "string (The name of the career.)",
-          "terms": "number (The number of terms served in the career.)"
+          "name": "string",
+          "terms": "number"
         }
       ],
-      "credits": "number (The amount of credits the character possesses.)",
+      "credits": "number",
       "skills": [
         {
           "name": "string",
           "level": "number"
         }
       ],
-      "speciesTraits": "string[] | null (A list of traits for non-human species. Omit, set to null or an empty array if not applicable.)",
-      "equipment": "string[] | null (A list of significant equipment the character owns. Omit, set to null or an empty array if not applicable.)",
-      "backstory": "string (A short, engaging backstory for the character, suitable for a Cepheus Engine RPG setting.)"
+      "speciesTraits": "string[] | null",
+      "equipment": "string[] | null",
+      "backstory": "string"
     }
     \`\`\`
 
@@ -99,10 +97,7 @@ const extractJsonFromAiResponse = (text: string): string | null => {
   return null;
 };
 
-const formatCharacter = (
-  character: AIGeneratedCharacter,
-  location: TravellerWorld | null
-): string => {
+const formatCharacter = (character: AIGeneratedCharacter): string => {
   const { name, upp, age, careers, credits, skills, speciesTraits, equipment, backstory } =
     character;
   const careerString = careers.map((c: AICareer) => `${c.name} (${c.terms} terms)`).join(', ');
@@ -129,15 +124,116 @@ const formatCharacter = (
     parts.push(`\n${backstory}`);
   }
 
-  if (location) {
-    const locationName = location.Name ?? 'Unknown';
-    const locationUwp = location.UWP ?? '???????-?';
-    parts.push(
-      `\nCurrent Location: ${locationName} (${locationUwp}) - ${location.Sector} ${location.Hex}`
-    );
+  return `\`\`\`\n${parts.join('\n')}\n\`\`\``;
+};
+
+const uwpToDescriptors = (uwp: string) => {
+  const parts = uwp.split('-');
+  const mainProfile = parts[0];
+
+  const descriptors = [];
+
+  const starportMap: Record<string, string> = {
+    A: 'Excellent Starport',
+    B: 'Good Starport',
+    C: 'Routine Starport',
+    D: 'Poor Starport',
+    E: 'Frontier Starport',
+    X: 'No Starport',
+  };
+  if (starportMap[mainProfile[0]]) descriptors.push(starportMap[mainProfile[0]]);
+
+  const size = parseInt(mainProfile[1], 16);
+  if (size === 0) descriptors.push('asteroid belt');
+  else if (size <= 2) descriptors.push('tiny world');
+  else if (size <= 5) descriptors.push('small world');
+  else if (size <= 8) descriptors.push('medium-sized world');
+  else descriptors.push('large world');
+
+  const atmosphere = parseInt(mainProfile[2], 16);
+  const atmosphereMap: Record<number, string> = {
+    0: 'no atmosphere',
+    1: 'trace atmosphere',
+    2: 'very thin, tainted atmosphere',
+    3: 'very thin atmosphere',
+    4: 'thin, tainted atmosphere',
+    5: 'thin atmosphere',
+    6: 'standard atmosphere',
+    7: 'dense, tainted atmosphere',
+    8: 'dense atmosphere',
+    9: 'exotic atmosphere',
+    10: 'corrosive atmosphere',
+    11: 'insidious atmosphere',
+    12: 'dense, high-pressure atmosphere',
+  };
+  if (atmosphereMap[atmosphere]) descriptors.push(atmosphereMap[atmosphere]);
+
+  const hydro = parseInt(mainProfile[3], 16);
+  if (hydro === 0) descriptors.push('a desert world');
+  else if (hydro <= 2) descriptors.push('with some surface water');
+  else if (hydro <= 5) descriptors.push('with significant oceans and continents');
+  else if (hydro <= 9) descriptors.push('with small continents and vast oceans');
+  else descriptors.push('a water world with few islands');
+
+  const population = parseInt(mainProfile[4], 16);
+  if (population === 0) descriptors.push('uninhabited');
+  else if (population <= 3) descriptors.push('a very low population');
+  else if (population <= 6) descriptors.push('a medium population');
+  else if (population <= 9) descriptors.push('a high population');
+  else descriptors.push('an extremely high population');
+
+  if (parts.length > 1) {
+    const techLevel = parseInt(parts[1], 16);
+    if (techLevel <= 5) descriptors.push('low technology');
+    else if (techLevel <= 8) descriptors.push('average industrial technology');
+    else if (techLevel <= 11) descriptors.push('advanced technology');
+    else descriptors.push('very advanced, star-faring technology');
   }
 
-  return `\`\`\`\n${parts.join('\n')}\n\`\`\``;
+  return descriptors;
+};
+
+const generatePlanetImagePrompt = (world: TravellerWorld): string => {
+  const { Name, UWP, Remarks } = world;
+  const descriptors = uwpToDescriptors(UWP ?? '');
+
+  const basePrompt = `
+      Breathtaking digital painting of a planetary vista from space.
+      The planet is named ${Name}. It is ${descriptors.join(', ')}.
+      The view from a spaceship window, showing a part of the ship's hull in the foreground for scale.
+      The lighting is cinematic and dramatic, with strong highlights and deep shadows from its parent star.
+      Visible details could include continent shapes, cloud patterns, polar ice caps, and city lights on the night side if populated.
+      If the world is an asteroid belt, show a dense field of asteroids with a mining outpost visible.
+      If it's a gas giant, show swirling bands of colorful clouds and massive storms.
+      The image should be awe-inspiring and evoke a sense of wonder and exploration.
+      The image must be clean and contain absolutely no text, letters, titles, logos, watermarks, UI elements, or any other kind of typography.
+      `;
+
+  const notesPrompt = Remarks ? `Additional context about the world: ${Remarks}` : '';
+
+  return `${basePrompt}\n${notesPrompt}`.trim();
+};
+
+const formatLocation = (location: TravellerWorld) => {
+  const { Name, UWP, Hex, Sector, PBG, Allegiance, Remarks } = location;
+  const link = `https://travellermap.com/go/${Sector.split(' ')[0].toLowerCase()}/${Hex}`;
+  const fields = [
+    { name: 'UWP', value: UWP ?? '???????-?', inline: true },
+    { name: 'PBG', value: PBG ?? '???', inline: true },
+    { name: 'Allegiance', value: Allegiance ?? '??', inline: true },
+  ];
+
+  const notes = Remarks?.replace(/<[^>]*>?/gm, '');
+  if (notes) {
+    fields.push({ name: 'Notes', value: notes, inline: false });
+  }
+
+  return {
+    title: `${Name ?? 'Unknown World'} - ${Sector} ${Hex}`,
+    description: `[View on Traveller Map](${link})`,
+    color: 0x0099ff,
+    fields,
+  };
 };
 
 const parseAndValidateCharacter = (jsonString: string): AIGeneratedCharacter => {
@@ -180,84 +276,140 @@ const generateCharacterData = async (race: Race): Promise<AIGeneratedCharacter> 
 };
 
 export const action = async (interaction: APIChatInputApplicationCommandInteraction) => {
-  const followupUrl = `https://discord.com/api/v10/webhooks/${interaction.application_id}/${interaction.token}/messages/@original`;
+  const followupUrl = `https://discord.com/api/v10/webhooks/${interaction.application_id}/${interaction.token}`;
 
-  const sendFollowup = async (content: string, image?: Uint8Array) => {
+  const sendFollowup = async (payload: object, image?: Uint8Array) => {
     const formData = new FormData();
-    const payload = {
-      content,
-      embeds: image ? [{ image: { url: 'attachment://character.png' } }] : [],
-      attachments: image ? [{ id: 0, filename: 'character.png' }] : [],
-    };
     formData.append('payload_json', JSON.stringify(payload));
 
     if (image) {
       formData.append('files[0]', new Blob([image]), 'character.png');
     }
 
-    await fetch(followupUrl, {
+    const response = await fetch(`${followupUrl}/messages/@original`, {
       method: 'PATCH',
       body: formData,
     });
+    if (!response.ok) {
+      console.error('Failed to send followup to Discord:', await response.json());
+    }
+  };
+
+  const sendChannelMessage = async (channelId: string, payload: object, image?: Uint8Array) => {
+    const formData = new FormData();
+    formData.append('payload_json', JSON.stringify(payload));
+
+    if (image) {
+      formData.append('files[0]', new Blob([image]), 'planet.png');
+    }
+
+    const token = process.env.DISCORD_BOT_TOKEN;
+    if (!token) {
+      console.error('DISCORD_BOT_TOKEN is not set.');
+      return;
+    }
+
+    const url = `https://discord.com/api/v10/channels/${channelId}/messages`;
+
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bot ${token}`,
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      console.error('Failed to send channel message to Discord:', await response.json());
+    }
   };
 
   const sendError = async (message: string) => {
-    await fetch(followupUrl, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content: message }),
+    await sendFollowup({
+      content: message,
+      flags: 64, // Ephemeral
     });
   };
 
   try {
-    const raceOption = interaction.data.options?.find(
-      (option: APIApplicationCommandInteractionDataOption) =>
-        option.name === 'race' && option.type === ApplicationCommandOptionType.String
+    const options = interaction.data.options ?? [];
+    const raceOption = options.find(
+      o => o.name === 'race'
     ) as APIApplicationCommandInteractionDataStringOption;
-
-    if (!raceOption) {
-      throw new Error('Race not provided.');
-    }
     const race = raceOption.value as Race;
 
-    const character = await generateCharacterData(race);
+    const characterDataPromise = generateCharacterData(race);
+    const locationPromise = pickRandomWorld();
 
-    const spinwardMarchesWorlds = await travellerMapClient.getSectorWorlds('Spinward Marches');
+    const [characterData, location] = await Promise.all([characterDataPromise, locationPromise]);
 
-    const location =
-      spinwardMarchesWorlds.length > 0
-        ? spinwardMarchesWorlds[Math.floor(Math.random() * spinwardMarchesWorlds.length)]
-        : null;
+    const imagePrompt = generateImagePrompt(characterData, race);
+    const imagePromise = generateImage(imagePrompt);
 
-    const formattedCharacter = formatCharacter(character, location);
-    let messageContent = formattedCharacter;
+    const characterContent = formatCharacter(characterData);
+
+    const image = await imagePromise;
+
+    const characterPayload = {
+      content: characterContent,
+      embeds: image ? [{ image: { url: 'attachment://character.png' } }] : [],
+      attachments: image ? [{ id: 0, filename: 'character.png' }] : [],
+    };
+
+    await sendFollowup(characterPayload, image);
+
     if (location) {
-      const travellerMapLink = `https://travellermap.com/go/${location.Sector}/${location.Hex}`;
-      messageContent += `\n${travellerMapLink}`;
-    }
+      const locationEmbed = formatLocation(location);
 
-    if (process.env.IMAGE_GENERATION_ENABLED === 'true') {
-      const imagePrompt = generateImagePrompt(character, race);
-      const image = await generateImage(imagePrompt);
+      const planetImage =
+        process.env.IMAGE_GENERATION_ENABLED === 'true'
+          ? await generateImage(generatePlanetImagePrompt(location))
+          : null;
 
-      if (!(image instanceof Uint8Array) || image.length === 0) {
-        throw new Error('Generated image data is invalid or empty.');
+      const embeds: (ReturnType<typeof formatLocation> & { image?: { url: string } })[] = [
+        locationEmbed,
+      ];
+      if (planetImage) {
+        embeds[0].image = { url: 'attachment://planet.png' };
       }
 
-      await sendFollowup(messageContent, image);
+      const payload = {
+        content: '',
+        embeds,
+        attachments: planetImage ? [{ id: 0, filename: 'planet.png' }] : [],
+      };
 
+      await sendChannelMessage(interaction.channel_id, payload, planetImage ?? undefined);
+    }
+
+    if (process.env.IMAGE_GENERATION_ENABLED === 'true' && image) {
       try {
         const { key } = await getCloudflareContext().env.R2_IMAGES_BUCKET.put(nanoid(), image);
-        await saveGeneratedCharacter(character, key);
+        await saveGeneratedCharacter(characterData, key, location);
       } catch (r2Error) {
         console.error('[Chargen] Failed to upload image to R2:', r2Error);
+        // continue without saving if R2 fails
+        await saveGeneratedCharacter(characterData, null, location);
       }
     } else {
-      await sendFollowup(messageContent);
-      await saveGeneratedCharacter(character, null);
+      await saveGeneratedCharacter(characterData, null, location);
     }
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
-    await sendError(`Character generation failed: \`\`\`${errorMessage}\`\`\``);
+    console.error('Error in chargen action:', error);
+    await sendError(
+      error instanceof Error && error.message.includes('AI response')
+        ? 'The character data from the AI was incomplete or malformed. Please try again.'
+        : 'An unknown error occurred during character generation.'
+    );
   }
 };
+
+async function pickRandomWorld(): Promise<TravellerWorld | null> {
+  const spinwardMarchesWorlds = await travellerMapClient.getSectorWorlds('Spinward Marches');
+
+  if (spinwardMarchesWorlds.length > 0) {
+    return spinwardMarchesWorlds[Math.floor(Math.random() * spinwardMarchesWorlds.length)];
+  }
+
+  return null;
+}

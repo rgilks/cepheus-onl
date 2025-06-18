@@ -252,6 +252,7 @@ export const generatedCharacters = sqliteTable('generated_characters', {
   equipment: text('equipment', { mode: 'json' }),
   backstory: text('backstory'),
   r2_image_key: text('r2_image_key'),
+  location: text('location', { mode: 'json' }),
   createdAt: integer('createdAt', { mode: 'timestamp_ms' })
     .notNull()
     .$defaultFn(() => new Date()),

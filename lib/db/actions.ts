@@ -1,10 +1,12 @@
 import { getDb } from 'lib/db';
 import { generatedCharacters } from './schema';
 import type { AIGeneratedCharacter } from '@/app/lib/domain/types/cepheus';
+import { TravellerWorld } from '@/app/lib/domain/types/travellermap';
 
 export const saveGeneratedCharacter = async (
   character: AIGeneratedCharacter,
-  r2ImageKey: string | null
+  r2ImageKey: string | null,
+  location: TravellerWorld | null
 ): Promise<void> => {
   const db = await getDb();
   try {
@@ -12,6 +14,7 @@ export const saveGeneratedCharacter = async (
     await db.insert(generatedCharacters).values({
       ...character,
       r2_image_key: r2ImageKey,
+      location,
     });
     console.log('[DB] Successfully saved generated character.');
   } catch (error) {
