@@ -1,4 +1,4 @@
-import { type Race } from './races';
+import { type Race } from './types/character';
 
 export const raceDescriptions: Record<Race, string> = {
   // Major Races

@@ -11,7 +11,7 @@ import { NextResponse } from 'next/server';
 
 import { discord } from 'app/lib/discord/discord';
 
-import { EquipmentItemSchema } from 'app/lib/domain/types';
+import { EquipmentItemSchema } from '@/app/lib/domain/types/common';
 
 const EQUIPMENT_CATEGORIES = {
   armor: srd.armor,

@@ -1,6 +1,6 @@
 'use server';
 
-import { DiscordMessageSchema } from '../domain/types';
+import { DiscordMessageSchema } from './types';
 import { Routes } from 'discord-api-types/v10';
 
 const sendMessage = async (channelId: string, message: string) => {

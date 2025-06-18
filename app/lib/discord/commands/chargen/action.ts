@@ -1,19 +1,19 @@
 import { getCloudflareContext } from '@opennextjs/cloudflare';
-import { generateImage, generateTextCompletion } from 'app/lib/ai/google';
-import { CepheusSchema, type Cepheus, type CepheusCareer } from '../../../domain/types';
+import { generateImage, generateTextCompletion } from '@/app/lib/ai/google';
+import { CepheusSchema, type Cepheus, type CepheusCareer } from '@/app/lib/domain/types/cepheus';
 import { archetypes } from './archetypes';
 import { nanoid } from 'nanoid';
-import { saveGeneratedCharacter } from 'lib/db/actions';
+import { saveGeneratedCharacter } from '@/lib/db/actions';
 import {
   ApplicationCommandOptionType,
   type APIApplicationCommandInteractionDataStringOption,
   type APIChatInputApplicationCommandInteraction,
   type APIApplicationCommandInteractionDataOption,
 } from 'discord-api-types/v10';
-import { Race } from 'app/lib/domain/races';
-import { raceDescriptions } from 'app/lib/domain/race-descriptions';
-import { travellerMapClient } from 'app/lib/travellermap/client';
-import { TravellerWorld } from 'app/lib/domain/types/travellermap';
+import { Race } from '@/app/lib/domain/types/character';
+import { raceDescriptions } from '@/app/lib/domain/race-descriptions';
+import { travellerMapClient } from '@/app/lib/travellermap/client';
+import { TravellerWorld } from '@/app/lib/domain/types/travellermap';
 
 const generatePrompt = (race: Race) => {
   const randomArchetype = archetypes[Math.floor(Math.random() * archetypes.length)];
@@ -244,20 +244,17 @@ export const action = async (interaction: APIChatInputApplicationCommandInteract
         });
         console.log(`[Chargen] Successfully uploaded character image to R2 with key: ${key}`);
         await saveGeneratedCharacter(character, key);
-      } catch (uploadError) {
-        console.error('[Chargen] Failed to upload character image to R2:', uploadError);
+      } catch (r2Error) {
+        console.error('[Chargen] Failed to upload image to R2:', r2Error);
       }
     } else {
       await sendFollowup(formattedCharacter);
-      console.log('[Chargen] Follow-up message sent successfully (image generation disabled).');
-      await saveGeneratedCharacter(character, ''); // Pass an empty string for the key
+      console.log('[Chargen] Follow-up message sent successfully.');
+      await saveGeneratedCharacter(character, null);
     }
   } catch (error) {
-    console.error('Error generating character:', error);
-    const errorMessage =
-      error instanceof Error && error.message.includes('AI response')
-        ? 'Failed to generate a character. The AI response was not in the expected format.'
-        : 'An error occurred while generating the character.';
-    await sendError(errorMessage);
+    console.error(error);
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
+    await sendError(`Character generation failed: \`\`\`${errorMessage}\`\`\``);
   }
 };

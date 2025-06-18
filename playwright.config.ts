@@ -1,6 +1,6 @@
 import { defineConfig, devices } from '@playwright/test';
 
-const port = process.env.PORT || '3001';
+const port = process.env.PORT || '3000';
 const baseURL = `http://localhost:${port}`;
 
 const isCI = !!(

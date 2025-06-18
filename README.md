@@ -42,3 +42,11 @@ For more detailed information about the project, please refer to the documents i
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a pull request or open an issue.
+
+## Local Development Instructions
+
+1. `cp .env.example .env.local`
+2. Add a value for `AUTH_SECRET`.
+3. `npm run dev`
+
+Your app should now be running on [http://localhost:3000](http://localhost:3000).
