@@ -1,9 +1,9 @@
 import { getDb } from 'lib/db';
 import { generatedCharacters } from './schema';
-import type { Cepheus } from '@/app/lib/domain/types/cepheus';
+import type { AIGeneratedCharacter } from '@/app/lib/domain/types/cepheus';
 
 export const saveGeneratedCharacter = async (
-  character: Cepheus,
+  character: AIGeneratedCharacter,
   r2ImageKey: string | null
 ): Promise<void> => {
   const db = await getDb();

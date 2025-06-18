@@ -1,6 +1,10 @@
 import { getCloudflareContext } from '@opennextjs/cloudflare';
 import { generateImage, generateTextCompletion } from '@/app/lib/ai/google';
-import { CepheusSchema, type Cepheus, type CepheusCareer } from '@/app/lib/domain/types/cepheus';
+import {
+  type AIGeneratedCharacter,
+  AIGeneratedCharacterSchema,
+  type AICareer,
+} from '@/app/lib/domain/types/cepheus';
 import { archetypes } from './archetypes';
 import { nanoid } from 'nanoid';
 import { saveGeneratedCharacter } from '@/lib/db/actions';
@@ -56,11 +60,11 @@ const generatePrompt = (race: Race) => {
   `;
 };
 
-const generateImagePrompt = (character: Cepheus, race: Race): string => {
+const generateImagePrompt = (character: AIGeneratedCharacter, race: Race): string => {
   const { age, careers, equipment } = character;
   const description = raceDescriptions[race];
 
-  const careerDesc = careers.map((c: CepheusCareer) => c.name).join(', ');
+  const careerDesc = careers.map((c: AICareer) => c.name).join(', ');
   const equipmentList =
     equipment && equipment.length > 0 ? `Equipped with ${equipment.join(', ')}.` : '';
 
@@ -95,10 +99,13 @@ const extractJsonFromAiResponse = (text: string): string | null => {
   return null;
 };
 
-const formatCharacter = (character: Cepheus, location: TravellerWorld | null): string => {
+const formatCharacter = (
+  character: AIGeneratedCharacter,
+  location: TravellerWorld | null
+): string => {
   const { name, upp, age, careers, credits, skills, speciesTraits, equipment, backstory } =
     character;
-  const careerString = careers.map((c: CepheusCareer) => `${c.name} (${c.terms} terms)`).join(', ');
+  const careerString = careers.map((c: AICareer) => `${c.name} (${c.terms} terms)`).join(', ');
 
   const sortedSkills = [...skills]
     .sort((a, b) => a.name.localeCompare(b.name))
@@ -123,20 +130,20 @@ const formatCharacter = (character: Cepheus, location: TravellerWorld | null): s
   }
 
   if (location) {
-    const travellerMapLink = `https://travellermap.com/map?sector=${location.Sector}&hex=${location.Hex}`;
+    const locationName = location.Name ?? 'Unknown';
+    const locationUwp = location.UWP ?? '???????-?';
     parts.push(
-      `\nCurrent Location: ${location.Name} (${location.UWP}) - ${location.Sector} ${location.Hex}`
+      `\nCurrent Location: ${locationName} (${locationUwp}) - ${location.Sector} ${location.Hex}`
     );
-    parts.push(travellerMapLink);
   }
 
   return `\`\`\`\n${parts.join('\n')}\n\`\`\``;
 };
 
-const parseAndValidateCharacter = (jsonString: string): Cepheus => {
+const parseAndValidateCharacter = (jsonString: string): AIGeneratedCharacter => {
   try {
     const parsedJson = JSON.parse(jsonString);
-    const validationResult = CepheusSchema.safeParse(parsedJson);
+    const validationResult = AIGeneratedCharacterSchema.safeParse(parsedJson);
 
     if (!validationResult.success) {
       console.error('AI response validation failed:', validationResult.error.flatten());
@@ -159,7 +166,7 @@ const parseAndValidateCharacter = (jsonString: string): Cepheus => {
   }
 };
 
-const generateCharacterData = async (race: Race): Promise<Cepheus> => {
+const generateCharacterData = async (race: Race): Promise<AIGeneratedCharacter> => {
   const prompt = generatePrompt(race);
   const aiResponseText = await generateTextCompletion(prompt);
   const jsonString = extractJsonFromAiResponse(aiResponseText);
@@ -213,47 +220,43 @@ export const action = async (interaction: APIChatInputApplicationCommandInteract
     }
     const race = raceOption.value as Race;
 
-    console.log(`[Chargen] Starting character generation for race: ${race}...`);
     const character = await generateCharacterData(race);
-    console.log('[Chargen] Character data generated successfully.');
 
     const spinwardMarchesWorlds = await travellerMapClient.getSectorWorlds('Spinward Marches');
+
     const location =
-      spinwardMarchesWorlds[Math.floor(Math.random() * spinwardMarchesWorlds.length)] ?? null;
+      spinwardMarchesWorlds.length > 0
+        ? spinwardMarchesWorlds[Math.floor(Math.random() * spinwardMarchesWorlds.length)]
+        : null;
 
     const formattedCharacter = formatCharacter(character, location);
+    let messageContent = formattedCharacter;
+    if (location) {
+      const travellerMapLink = `https://travellermap.com/go/${location.Sector}/${location.Hex}`;
+      messageContent += `\n${travellerMapLink}`;
+    }
 
     if (process.env.IMAGE_GENERATION_ENABLED === 'true') {
       const imagePrompt = generateImagePrompt(character, race);
       const image = await generateImage(imagePrompt);
 
-      console.log(`[Chargen] Received image data. Type: ${typeof image}, Length: ${image.length}`);
       if (!(image instanceof Uint8Array) || image.length === 0) {
         throw new Error('Generated image data is invalid or empty.');
       }
 
-      await sendFollowup(formattedCharacter, image);
-      console.log('[Chargen] Follow-up message sent successfully.');
+      await sendFollowup(messageContent, image);
 
       try {
-        console.log('[Chargen] Uploading character image to R2...');
-        const key = nanoid();
-        const { env } = getCloudflareContext();
-        await env.R2_IMAGES_BUCKET.put(key, image, {
-          httpMetadata: { contentType: 'image/png' },
-        });
-        console.log(`[Chargen] Successfully uploaded character image to R2 with key: ${key}`);
+        const { key } = await getCloudflareContext().env.R2_IMAGES_BUCKET.put(nanoid(), image);
         await saveGeneratedCharacter(character, key);
       } catch (r2Error) {
         console.error('[Chargen] Failed to upload image to R2:', r2Error);
       }
     } else {
-      await sendFollowup(formattedCharacter);
-      console.log('[Chargen] Follow-up message sent successfully.');
+      await sendFollowup(messageContent);
       await saveGeneratedCharacter(character, null);
     }
   } catch (error) {
-    console.error(error);
     const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
     await sendError(`Character generation failed: \`\`\`${errorMessage}\`\`\``);
   }

@@ -17,6 +17,25 @@ export const CepheusCareerSchema = z.object({
 });
 export type CepheusCareer = z.infer<typeof CepheusCareerSchema>;
 
+export const AICareerSchema = z.object({
+  name: z.string(),
+  terms: z.number().int(),
+});
+export type AICareer = z.infer<typeof AICareerSchema>;
+
+export const AIGeneratedCharacterSchema = z.object({
+  name: z.string(),
+  upp: z.string(),
+  age: z.number().int(),
+  careers: z.array(AICareerSchema),
+  credits: z.number().int(),
+  skills: z.array(CepheusSkillSchema),
+  speciesTraits: z.array(z.string()).nullable().optional(),
+  equipment: z.array(z.string()).nullable().optional(),
+  backstory: z.string().optional(),
+});
+export type AIGeneratedCharacter = z.infer<typeof AIGeneratedCharacterSchema>;
+
 export const CepheusSchema = z.object({
   name: z.string(),
   upp: z.string(),
